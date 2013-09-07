@@ -12,12 +12,15 @@ def listdir(root):
     for files in os.listdir(root):
         thispath = os.path.join(root,files)
         fileName, fileExtension = os.path.splitext(thispath)
-        print fileExtension
+        fileExtension = re.sub('^.','',fileExtension)
+        #print fileExtension
         if os.path.isdir(thispath):
             listdir(thispath)
         else:
             if fileExtension in movie_filetypes:
-               print(thispath)
+                print(thispath)
+            #else:
+                #print "bad: "+fileExtension
 
 listdir('.')
 
