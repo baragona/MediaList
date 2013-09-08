@@ -1,0 +1,7 @@
+[Default]
+Dir:
+VideoFiletypes:
+AudioFiletypes:
+SearchDepth:
+MinMovieSize:
+MinAudioSize:

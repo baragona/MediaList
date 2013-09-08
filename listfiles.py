@@ -7,8 +7,8 @@ import subprocess
 
 
 
-library_root = '/Volumes/Data/'
-movie_filetypes = ['avi','mp4','mkv']
+library_root = '/Volumes/iJules/Users/Julian/Movies'
+movie_filetypes = ['avi','mp4','mkv','m4v']
 movie_minsize = 50*1024*1025#50 mb minimum for movie files
 max_search_depth = 7
 
@@ -57,13 +57,13 @@ def listdir(root,depth,parentCounts):
         elif os.path.isfile(thispath):
             size = os.path.getsize(thispath);
             if size < movie_minsize:
-                #print "Too small, skipping "
+                print "Too small, skipping "
                 nBoring+=1
                 continue
             if fileExtension in movie_filetypes:
                 #print(thispath)
                 type = subprocess.check_output(['file','--separator','SEPARATOR!',thispath])
-                #print(type)
+                print(type)
                 x = re.compile(r".+SEPARATOR! (.+)")
                 m = x.match(type)
                 if m:
