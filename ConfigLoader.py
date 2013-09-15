@@ -6,20 +6,29 @@ import pprint
 def getConfig():
     defaults = {
         'LibraryRoots':[],
-        'VideoFileExtensions':[],
+        'VideoFileExtensions':['avi','mp4','mkv','m4v'],
         'AudioFileExtensions':[],
         'MaxSearchDepth':[],
-        'MinMovieSize':[],
+        'MinMovieSize':50*1024*1024,
         'MinAudioSize':[],
 
     }
     cfg={}
+    file=None
     try:
         file = open('joobler_config.json')
-        cfg = json.load(file)
-        file.close()
-    except:
+    except IOError:
         print 'couldnt open config file'
+    if file:
+        try:
+            cfg = json.load(file)
+        except ValueError:
+            raise Exception('Configuration JSON file has some errors.')
+        file.close()
+    else:
+        print 'using defaults for everything'
+
+    #print 'couldnt open config file'+e
     
 
     for key in defaults:
@@ -30,7 +39,7 @@ def getConfig():
     
 def saveConfig(cfg):
     file = open('joobler_config.json','w')
-    json.dump(cfg,file,indent=4)
+    file.write(json.dumps(cfg,file,indent=4,sort_keys=True))
     file.close()
     
     
