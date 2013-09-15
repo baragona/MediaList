@@ -33,8 +33,13 @@ def saveConfig(cfg):
     json.dump(cfg,file,indent=4)
     file.close()
     
+    
+#If this script is run as a standalone
+#Small test program
+if __name__ == "__main__":
+    pp = pprint.PrettyPrinter(indent=4)
+    config = getConfig()
+    pp.pprint(config)
 
-pp = pprint.PrettyPrinter(indent=4)
-pp.pprint(getConfig())
+    saveConfig(config)
 
-saveConfig(getConfig())
