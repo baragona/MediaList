@@ -1,10 +1,262 @@
 <html>
+<head>
+<script type="text/javascript" src="jquery172.min.js"></script>
+<link rel="stylesheet" href="js/slick.grid.css" type="text/css">
+<link rel="stylesheet" href="js/slick-default-theme.css" type="text/css">
+<link href="css/JoobJQUI/jquery-ui-1.10.3.custom.css" rel="stylesheet">
+
+<script src="js/jquery-ui-1.10.3.custom.js"></script>
+<link rel="stylesheet" href="js/jsonedit/json.edit.css" type="text/css">
+<script src="js/jquery.event.drag-2.2.js"></script>
+
+<script src="js/slick.core.js"></script>
+<script src="js/slick.grid.js"></script>
+<script src="js/slick.dataview.js"></script>
+<script src="js/slick.rowselectionmodel.js"></script>
+
+<script src="js/jsonedit/nsgen.js"></script>
+<script src="js/jsonedit/jquery.lego.js"></script>
+<script src="js/jsonedit/legoparser.js"></script>
+<script src="js/jsonedit/json.schema.js"></script>
+<script src="js/jsonedit/json.edit.js"></script>
+
+</head>
 <body>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+
+<style>
+
+body {
+    
+    margin: 0px;
+    overflow: hidden;
+    background-image:url('win95imgs/clouds.png');
+    background-size: 100%;
+    -webkit-user-select: none;
+}
+::-webkit-scrollbar {
+    width: 16px;
+}
+::-webkit-scrollbar-track {
+    background:#DDD;
+}
+/* Turn on single button up on top, and down on bottom */
+::-webkit-scrollbar-button:start:decrement,
+::-webkit-scrollbar-button:end:increment {
+    display: block;
+}
+::-webkit-scrollbar-button:start:decrement{
+    background-image:url(win95icons/up.png);
+}
+::-webkit-scrollbar-button:end:increment{
+    background-image:url(win95icons/down.png);
+}
+/* Turn off the down area up on top, and up area on bottom */
+::-webkit-scrollbar-button:vertical:start:increment,
+::-webkit-scrollbar-button:vertical:end:decrement {
+    display: none;
+}
+::-webkit-scrollbar-button:start:decrement,
+::-webkit-scrollbar-button:end:increment,
+::-webkit-scrollbar-thumb,
+.ui-state-default,
+.ui-widget-content .ui-state-default,
+.ui-widget-header .ui-state-default,
+.ui-dialog, button{
+    padding: 2px;
+    border-image-slice: 3 4;
+    border-image-width: 3px 4px;
+    border-image-outset: 0px;
+    border-image-repeat: stretch;
+    border-image-source: url(file:///Users/kevin/Joobler/win95icons/raised.png);
+    background-color:#BEBEBE;
+}
+::-webkit-scrollbar-button:start:decrement:active,
+::-webkit-scrollbar-button:end:increment:active,
+.ui-widget-content .ui-state-active,
+button:active{
+    padding: 2px;
+    border-image-slice: 3 4;
+    border-image-width: 3px 4px;
+    border-image-outset: 0px;
+    border-image-repeat: stretch;
+    border-image-source: url(file:///Users/kevin/Joobler/win95icons/sunken.png);
+}
+input[type=text],input[type=number]{
+    padding: 2px;
+    border-image-slice: 3 4;
+    border-image-width: 3px 4px;
+    border-image-outset: 0px;
+    border-image-repeat: stretch;
+    border-image-source: url(file:///Users/kevin/Joobler/win95icons/textfield.png);
+}
+
+.ui-dialog-titlebar-close{
+    border:0px !important;
+    background: transparent !important;
+}
+.ui-icon-closethick{
+    background-color:transparent;
+    background-image: url(file:///Users/kevin/Joobler/win95icons/Xbutton.png) !important;
+    background-position:0px 0px !important;
+}
+.je-array{
+    border:0px;
+}
+.slick-cell{
+
+}
+.slick-header{
+    border: 0px;
+    padding: 0px;
+}
+</style>
+<input type='text' id='searchBox' style='font-size:16px;width:200px'>
+<button id='editConfigButton' style='vertical-align: middle;'><img src="win95icons/Icon_22-0.png"></button>
+<div id='grid' style=" border: 1px solid black;" ></div>
+
 <script>
+var searchSpan=$('<span>');
+searchSpan.css('position','relative');
+var searchClear=$('<img style="position:absolute; right:2px; top:2px;cursor:pointer" src="win95icons/Xbutton.png" alt="" />');
+searchClear.hide();
+searchClear.click(function(){
+    $('#searchBox').val('');
+    $('#searchBox').change();
+});
+$('#searchBox').wrap(searchSpan).after(searchClear);
+
+$('#editConfigButton').click(openConfigEditor);
+
+var library;
+var resizeTimeout
+  , availableWidth
+  , availableHeight
+  , $window = $(window);
+var calculateSize = function () {
+  var offset = $('#grid').offset();
+  availableWidth = $window.width() - offset.left -100;
+  availableHeight = $window.height() - offset.top -10;
+  $('#grid').css('height',availableHeight+'px');
+  if(grid){
+    grid.resizeCanvas();
+  }
+};
+setTimeout(function(){
+    calculateSize();
+},10);
+$window.on('resize', calculateSize);
+
+function quotemeta (str) {
+  return (str + '').replace(/([\.\\\+\*\?\[\^\]\$\(\)])/g, '\\$1');
+}
 
 
 
+var grid;
+
+$.ajax({
+    url: 'http://localhost:31415/do?action=getLibrary',
+    success:function (response){
+        //console.log(response);
+        library=JSON.parse(response);
+      var columns = [
+        {id: "name", name: "Name", field: "basename",sortable:true},
+        {id: "size", name: "Size", field: "size",sortable:true}
+          ];
+
+      var options = {
+        enableCellNavigation: true,
+        enableColumnReorder: false,
+        forceFitColumns: true,
+        fullWidthRows: true,
+        rowHeight:15,
+        editable:true,
+        multiSelect:true
+      };
+      
+    var dataView = new Slick.Data.DataView();
+    dataView.onRowCountChanged.subscribe(function (e, args) {
+      grid.updateRowCount();
+      grid.render();
+    });
+
+    dataView.onRowsChanged.subscribe(function (e, args) {
+      grid.invalidateRows(args.rows);
+      grid.render();
+    });
+
+    grid = new Slick.Grid("#grid", dataView, columns, options);
+    grid.setSelectionModel(new Slick.RowSelectionModel({dragToMultiSelect:true}));
+    
+    grid.onDblClick.subscribe(function(e,args){
+        var cell = grid.getCellFromEvent(e);
+        var fileId = dataView.getItem(cell.row).id;
+        $.ajax({
+            url: 'http://localhost:31415/do?action=openFile;fileId='+fileId,
+        });
+        
+    });
+    
+    $('#searchBox').on("keyup change",function(){
+        dataView.refresh();
+        
+        if($('#searchBox').val()){
+            searchClear.show();
+        }else{
+            searchClear.hide();
+        }
+    });
+    
+    grid.init();
+    dataView.beginUpdate();
+    dataView.setItems(library);
+    dataView.setFilter(function(item){
+        //console.log(JSON.stringify(item));
+        var current=item['path'];
+        
+        current = current.replace(/[^\w\d]+/ig,' ');
+        
+        var search=$('#searchBox').val();
+        var re=new RegExp('([^\\w\\d]|^)'+quotemeta(search),'i');
+        if(current.match(re)){
+            //console.log(current);
+            return true;
+        }else{
+            return false;
+        }
+    });
+    dataView.endUpdate();
+    
+    }
+});
+
+var configEditorOpen=0;
+function openConfigEditor(){
+    if(configEditorOpen){
+        return;
+    }else{
+        configEditorOpen=1;
+    }
+    $.ajax({url:'http://localhost:31415/do?action=getConfigSchemaJSON',success:function(resp){
+        var dialog=$('<div  title="Configuration">').dialog({
+            autoOpen:true,
+            close:function(){
+                dialog.dialog("destroy");
+                dialog.detach();
+                configEditorOpen=0;
+            },
+            buttons:{
+                Save:function(){
+            
+                }
+            }
+        });
+        dialog.parent().find('.ui-dialog-title').prepend('<img src="win95icons/Icon_22-0.png" style="vertical-align: middle;">');
+        var jsonform=$('<div >');
+        dialog.append(jsonform);
+        JsonEdit(jsonform,JSON.parse(resp));
+    }});
+}
 </script>
 </body>
 </html>

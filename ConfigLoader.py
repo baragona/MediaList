@@ -2,17 +2,52 @@
 
 import json
 import pprint
+import re
+
+defaults = {
+    'LibraryRoots':[],
+    'VideoFileExtensions':['avi','mp4','mkv','m4v'],
+    'AudioFileExtensions':[],
+    'MaxSearchDepth':7,
+    'MinMovieSize':50*1024*1024,
+    'MinAudioSize':300*1024,
+
+}
+
+def getConfigSchemaJSON():
+    
+    current=getConfig()
+    stringArrays=["LibraryRoots",'VideoFileExtensions','AudioFileExtensions']
+    numbers=['MaxSearchDepth','MinMovieSize','MinAudioSize']
+    schema={
+        'order': [],
+        'properties': {}
+    }
+    for key in stringArrays:
+        schema['order'].append(key);
+        schema['properties'][key]={
+            "type": "array",
+            "title": keyNameToNiceName(key),
+            "default": current[key],
+            "items": {
+                "type": "string"    
+                } 
+            }
+    for key in numbers:
+        schema['order'].append(key);
+        schema['properties'][key]={
+            "type": "number",
+            "title": keyNameToNiceName(key),
+            "default": current[key]
+            }
+    return json.dumps(schema)
+    
+
+def keyNameToNiceName(key):
+    return ' '.join(re.findall('[A-Z][^A-Z]*',key))
 
 def getConfig():
-    defaults = {
-        'LibraryRoots':[],
-        'VideoFileExtensions':['avi','mp4','mkv','m4v'],
-        'AudioFileExtensions':[],
-        'MaxSearchDepth':[],
-        'MinMovieSize':50*1024*1024,
-        'MinAudioSize':[],
 
-    }
     cfg={}
     file=None
     try:

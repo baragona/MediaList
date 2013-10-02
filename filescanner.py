@@ -8,6 +8,8 @@ import time
 
 import ConfigLoader
 
+import dbaccess
+
 config = ConfigLoader.getConfig()
 
 
@@ -17,13 +19,8 @@ movie_minsize = config['MinMovieSize']
 max_search_depth = config['MaxSearchDepth']
 
 
-con = None
+con = dbaccess.connect()
 
-try:
-    con = lite.connect('joobler.db')
-except lite.Error, e:
-    print "Error %s:" % e.args[0]
-    sys.exit(1)
 def dropLibrary():
     cur = con.cursor()    
     cur.execute("Drop table if exists library")

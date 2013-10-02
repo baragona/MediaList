@@ -1,0 +1,5 @@
+*.py[cod]
+joobler.db
+joobler_config.json
+
+
