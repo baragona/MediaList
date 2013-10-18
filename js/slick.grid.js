@@ -844,6 +844,11 @@ if (typeof Slick === "undefined") {
               applyColumnHeaderWidths();
               if (options.syncColumnCellResize) {
                 applyColumnWidths();
+                
+                //console.log("Trigger");
+                trigger(self.onColumnsResized, {});
+                
+                
               }
             })
             .bind("dragend", function (e, dd) {
@@ -2687,6 +2692,10 @@ if (typeof Slick === "undefined") {
     function getActiveCellNode() {
       return activeCellNode;
     }
+    
+    function getFocusSink(){
+      return $focusSink;
+    }
 
     function scrollRowIntoView(row, doPaging) {
       var rowAtTop = row * options.rowHeight;
@@ -3327,6 +3336,7 @@ if (typeof Slick === "undefined") {
       "setActiveCell": setActiveCell,
       "getActiveCellNode": getActiveCellNode,
       "getActiveCellPosition": getActiveCellPosition,
+      "getFocusSink" : getFocusSink,
       "resetActiveCell": resetActiveCell,
       "editActiveCell": makeActiveCellEditable,
       "getCellEditor": getCellEditor,

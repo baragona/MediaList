@@ -5,11 +5,14 @@ import ConfigLoader
 import sqlite3 as lite
 
 import json
-
+import re
+import os
 import subprocess
 
-from twisted.web import server, resource
+from twisted.web import server, resource, http
 from twisted.internet import reactor
+
+import mimetypes
 
 class HelloResource(resource.Resource):
     isLeaf = True
@@ -22,6 +25,9 @@ class HelloResource(resource.Resource):
         
         args = request.args
         print request.path
+        
+        filepath = re.sub(r'^/','',request.path)
+        print filepath
         if request.path == '/do':
             if 'action' in args:
                 action = args['action'][0]
@@ -40,7 +46,7 @@ class HelloResource(resource.Resource):
                     cur = con.cursor()
                     cur.execute("select path from library where id = ?",[fileId])
                     path=cur.fetchone()[0];
-                    result=subprocess.check_output(['open',path])
+                    result=subprocess.check_output(['open','-a',ConfigLoader.getConfig()['openVideosWith'],path])
                     return 'opened'
                 if action == 'getConfigSchemaJSON':
                     return ConfigLoader.getConfigSchemaJSON()
@@ -48,6 +54,13 @@ class HelloResource(resource.Resource):
                     return 'WTF'
             else:
                 return '{}'
+        elif os.path.exists(filepath):
+            request.setHeader("content-type", mimetypes.guess_type(filepath)[0])
+            if request.setLastModified(os.path.getmtime(filepath)) == http.CACHED:
+                return ''
+            else:
+                f=file(filepath)
+                return f.read()
         else:
             return 'Unknown command'
         

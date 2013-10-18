@@ -11,7 +11,7 @@ defaults = {
     'MaxSearchDepth':7,
     'MinMovieSize':50*1024*1024,
     'MinAudioSize':300*1024,
-
+    'openVideosWith':'/Applications/VLC.app'
 }
 
 def getConfigSchemaJSON():

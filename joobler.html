@@ -3,6 +3,10 @@
 <script type="text/javascript" src="jquery172.min.js"></script>
 <link rel="stylesheet" href="js/slick.grid.css" type="text/css">
 <link rel="stylesheet" href="js/slick-default-theme.css" type="text/css">
+
+<script src="js/memoize.0.2.5.full.browser.js"></script>
+<script src="squishy.js"></script>
+
 <link href="css/JoobJQUI/jquery-ui-1.10.3.custom.css" rel="stylesheet">
 
 <script src="js/jquery-ui-1.10.3.custom.js"></script>
@@ -14,103 +18,23 @@
 <script src="js/slick.dataview.js"></script>
 <script src="js/slick.rowselectionmodel.js"></script>
 
+<script src="js/underscore.js"></script>
+
+
 <script src="js/jsonedit/nsgen.js"></script>
 <script src="js/jsonedit/jquery.lego.js"></script>
 <script src="js/jsonedit/legoparser.js"></script>
 <script src="js/jsonedit/json.schema.js"></script>
 <script src="js/jsonedit/json.edit.js"></script>
 
+<link rel="stylesheet" href="joobler.css" type="text/css">
+
 </head>
 <body>
 
-<style>
-
-body {
-    
-    margin: 0px;
-    overflow: hidden;
-    background-image:url('win95imgs/clouds.png');
-    background-size: 100%;
-    -webkit-user-select: none;
-}
-::-webkit-scrollbar {
-    width: 16px;
-}
-::-webkit-scrollbar-track {
-    background:#DDD;
-}
-/* Turn on single button up on top, and down on bottom */
-::-webkit-scrollbar-button:start:decrement,
-::-webkit-scrollbar-button:end:increment {
-    display: block;
-}
-::-webkit-scrollbar-button:start:decrement{
-    background-image:url(win95icons/up.png);
-}
-::-webkit-scrollbar-button:end:increment{
-    background-image:url(win95icons/down.png);
-}
-/* Turn off the down area up on top, and up area on bottom */
-::-webkit-scrollbar-button:vertical:start:increment,
-::-webkit-scrollbar-button:vertical:end:decrement {
-    display: none;
-}
-::-webkit-scrollbar-button:start:decrement,
-::-webkit-scrollbar-button:end:increment,
-::-webkit-scrollbar-thumb,
-.ui-state-default,
-.ui-widget-content .ui-state-default,
-.ui-widget-header .ui-state-default,
-.ui-dialog, button{
-    padding: 2px;
-    border-image-slice: 3 4;
-    border-image-width: 3px 4px;
-    border-image-outset: 0px;
-    border-image-repeat: stretch;
-    border-image-source: url(file:///Users/kevin/Joobler/win95icons/raised.png);
-    background-color:#BEBEBE;
-}
-::-webkit-scrollbar-button:start:decrement:active,
-::-webkit-scrollbar-button:end:increment:active,
-.ui-widget-content .ui-state-active,
-button:active{
-    padding: 2px;
-    border-image-slice: 3 4;
-    border-image-width: 3px 4px;
-    border-image-outset: 0px;
-    border-image-repeat: stretch;
-    border-image-source: url(file:///Users/kevin/Joobler/win95icons/sunken.png);
-}
-input[type=text],input[type=number]{
-    padding: 2px;
-    border-image-slice: 3 4;
-    border-image-width: 3px 4px;
-    border-image-outset: 0px;
-    border-image-repeat: stretch;
-    border-image-source: url(file:///Users/kevin/Joobler/win95icons/textfield.png);
-}
-
-.ui-dialog-titlebar-close{
-    border:0px !important;
-    background: transparent !important;
-}
-.ui-icon-closethick{
-    background-color:transparent;
-    background-image: url(file:///Users/kevin/Joobler/win95icons/Xbutton.png) !important;
-    background-position:0px 0px !important;
-}
-.je-array{
-    border:0px;
-}
-.slick-cell{
-
-}
-.slick-header{
-    border: 0px;
-    padding: 0px;
-}
-</style>
+<script src="js/jss.js"></script>
 <input type='text' id='searchBox' style='font-size:16px;width:200px'>
+<div id="zoomSlider" class='slider'></div>
 <button id='editConfigButton' style='vertical-align: middle;'><img src="win95icons/Icon_22-0.png"></button>
 <div id='grid' style=" border: 1px solid black;" ></div>
 
@@ -125,43 +49,250 @@ searchClear.click(function(){
 });
 $('#searchBox').wrap(searchSpan).after(searchClear);
 
+$('#searchBox').blur(function(){
+    $('#searchBox').get(0).focus();
+});
+$('#searchBox').keydown(function(e){
+    if(e.which == 38 || e.which == 40){
+        e.preventDefault();
+        grid.getFocusSink().trigger(e);
+    }
+});
+
 $('#editConfigButton').click(openConfigEditor);
 
+$( "#zoomSlider" ).slider({
+    value:15,
+    min: 10,
+    max: 25,
+    step: .5,
+    slide: _.throttle(function( event, ui ) {
+        
+        setRowSize(ui.value)
+        ;
+    },30)
+});
+
 var library;
+var keyWordsToCount;
 var resizeTimeout
   , availableWidth
   , availableHeight
   , $window = $(window);
+var grid;
 var calculateSize = function () {
   var offset = $('#grid').offset();
   availableWidth = $window.width() - offset.left -100;
   availableHeight = $window.height() - offset.top -10;
   $('#grid').css('height',availableHeight+'px');
-  if(grid){
+  if(grid.resizeCanvas){
     grid.resizeCanvas();
   }
 };
-setTimeout(function(){
-    calculateSize();
-},10);
 $window.on('resize', calculateSize);
 
 function quotemeta (str) {
   return (str + '').replace(/([\.\\\+\*\?\[\^\]\$\(\)])/g, '\\$1');
 }
+function naturalSorter(as, bs){
+    var a, b, a1, b1, i= 0, n, L,
+    rx=/(\.\d+)|(\d+(\.\d+)?)|([^\d.]+)|(\.\D+)|(\.$)/g;
+    as=as+'';
+    bs=bs+'';
+    if(as=== bs) return 0;
+    a= as.toLowerCase().match(rx);
+    b= bs.toLowerCase().match(rx);
+    L= a.length;
+    while(i<L){
+        if(!b[i]) return 1;
+        a1= a[i],
+        b1= b[i++];
+        if(a1!== b1){
+            n= a1-b1;
+            if(!isNaN(n)) return n;
+            return a1>b1? 1:-1;
+        }
+    }
+    return b[i]? -1:0;
+}
+function displayFileSize(x){
+    var str=0;
+    if(x>0){
+        var exp=Math.floor((Math.log(x*1.03)/Math.log(2))/10);
+        var div=Math.pow(1024,exp);
+        var str=(x/div);
+        if(str<10){
+            str=str.toFixed(1);
+        }else{
+            str=str.toFixed(0);
+        }
+        str=str+' '+(['B','kB','MB','GB','TB'])[exp];
+    }
+    return str;
+}
+function getWordsFromString(str){
+    var matches= str.toLowerCase().match(/[a-z]+/g);
+    if(matches){
+        return matches;
+    }
+    return [];
+}
+var levenshtein = function(min, split){
+    // Levenshtein Algorithm Revisited - WebReflection
+    try{split=!("0")[0]}catch(i){split=true};
+    return function(a, b){
+        if(a == b)return 0;
+        if(!a.length || !b.length)return b.length || a.length;
+        if(split){a = a.split("");b = b.split("")};
+        var len1 = a.length + 1,
+            len2 = b.length + 1,
+            I = 0,
+            i = 0,
+            d = [[0]],
+            c, j, J;
+        while(++i < len2)
+            d[0][i] = i;
+        i = 0;
+        while(++i < len1){
+            J = j = 0;
+            c = a[I];
+            d[i] = [i];
+            while(++j < len2){
+                d[i][j] = min(d[I][j] + 1, d[i][J] + 1, d[I][J] + (c != b[J]));
+                ++J;
+            };
+            ++I;
+        };
+        return d[len1 - 1][len2 - 1];
+    }
+}(Math.min, false);
+function startsWith(a,b){//does a start with b
+    var re=new RegExp('^'+quotemeta(b),'i');
+    if(a.match(re)){
+        return true;
+    }else{
+        return false;
+    }
+}
+function closestMatchInDictionary(word,keyWordsToCount,maxErrors){
+    if(keyWordsToCount[word]){
+      return word;
+    }
+    var keys = _.keys(keyWordsToCount);
+    var matches=_.filter(keys,function(el){return startsWith(el,word)});
+    if(matches.length>0){
+        if(matches.length==1){
+            return matches[0];
+        }else{
+            return word;
+        }
+    }
+    
+    var goodLengths = _.filter(keys,function(el){
+        if( (el.length >= word.length-maxErrors) ){
+            return true;
+        }
+    });
+    
+    return _.min(goodLengths,function(el){
+        return levenshtein(el,word);
+    });
+    
+    
+}
 
 
 
-var grid;
+var rowHeight=15;
+var gridFontSize=0;
 
-$.ajax({
-    url: 'http://localhost:31415/do?action=getLibrary',
-    success:function (response){
-        //console.log(response);
-        library=JSON.parse(response);
+function setRowSize(newsize){
+    rowHeight=newsize;
+    gridFontSize=(newsize*.8)+'px';
+    jss('.slick-cell',{fontSize:gridFontSize});
+    
+    var oldTopRow=grid.getViewport().top;
+    
+    initSlickGrid()
+    
+    grid.scrollRowToTop(oldTopRow);
+}
+
+var dataView = new Slick.Data.DataView();
+dataView.onRowCountChanged.subscribe(function (e, args) {
+  grid.updateRowCount();
+  grid.render();
+});
+
+dataView.onRowsChanged.subscribe(function (e, args) {
+  grid.invalidateRows(args.rows);
+  grid.render();
+});
+
+$('#searchBox').on("keyup change",function(){
+    dataView.refresh();
+    
+    if($('#searchBox').val()){
+        searchClear.show();
+    }else{
+        searchClear.hide();
+    }
+});
+
+
+
+var searchStringToRegex={};
+
+dataView.setFilter(function(item){
+    //console.log(JSON.stringify(item));
+    var current=item['path'];
+    
+    current = current.replace(/[^\w\d]+/ig,' ');
+    
+    
+    
+    var search=$('#searchBox').val();
+    var re;
+    if(searchStringToRegex[search]){
+        re = searchStringToRegex[search];
+    }else{
+        var words=getWordsFromString(search);
+        words = words.map(function(x){return closestMatchInDictionary(x,keyWordsToCount,Math.ceil(x.length/3.0))}).join(' ');
+        re=new RegExp('([^\\w\\d]|^)'+quotemeta(words),'i');
+        searchStringToRegex[search]=re;
+    }
+    if(current.match(re)){
+        //console.log(current);
+        return true;
+    }else{
+        return false;
+    }
+});
+    
+
+function initSlickGrid(){
+    $('#grid').empty();
+    $('#grid').removeClass();
+    grid=undefined;
       var columns = [
-        {id: "name", name: "Name", field: "basename",sortable:true},
-        {id: "size", name: "Size", field: "size",sortable:true}
+        {id: "name", name: "Name", field: "basename",sortable:true,formatter:function(row, cell, value, columnDef, dataContext){
+                var doLogging = (row==0?1:0);
+                
+                //var w =$(grid.getCellNode(row,cell)).outerWidth();
+                //var w = grid.getColumns()[cell].width;
+                var w = columnDef.width;
+                //(text,fontSize,avail,classes)
+                
+                if(doLogging){
+                    //console.log('Recalc');
+                }
+                
+                return calcSquishyHTML(value,gridFontSize,w,['ui-widget','slick-cell'],doLogging);
+                //return value;
+            }},
+        {id: "size", name: "Size", field: "size",sortable:true, formatter:function(row, cell, value, columnDef, dataContext){
+                return displayFileSize(value);
+            }}
           ];
 
       var options = {
@@ -169,22 +300,13 @@ $.ajax({
         enableColumnReorder: false,
         forceFitColumns: true,
         fullWidthRows: true,
-        rowHeight:15,
+        rowHeight:rowHeight,
         editable:true,
-        multiSelect:true
+        multiSelect:true,
+        forceSyncScrolling:false,
+        syncColumnCellResize:true
       };
       
-    var dataView = new Slick.Data.DataView();
-    dataView.onRowCountChanged.subscribe(function (e, args) {
-      grid.updateRowCount();
-      grid.render();
-    });
-
-    dataView.onRowsChanged.subscribe(function (e, args) {
-      grid.invalidateRows(args.rows);
-      grid.render();
-    });
-
     grid = new Slick.Grid("#grid", dataView, columns, options);
     grid.setSelectionModel(new Slick.RowSelectionModel({dragToMultiSelect:true}));
     
@@ -195,38 +317,50 @@ $.ajax({
             url: 'http://localhost:31415/do?action=openFile;fileId='+fileId,
         });
         
-    });
-    
-    $('#searchBox').on("keyup change",function(){
-        dataView.refresh();
-        
-        if($('#searchBox').val()){
-            searchClear.show();
-        }else{
-            searchClear.hide();
-        }
-    });
-    
+    });    
+
     grid.init();
-    dataView.beginUpdate();
-    dataView.setItems(library);
-    dataView.setFilter(function(item){
-        //console.log(JSON.stringify(item));
-        var current=item['path'];
-        
-        current = current.replace(/[^\w\d]+/ig,' ');
-        
-        var search=$('#searchBox').val();
-        var re=new RegExp('([^\\w\\d]|^)'+quotemeta(search),'i');
-        if(current.match(re)){
-            //console.log(current);
-            return true;
-        }else{
-            return false;
-        }
-    });
-    dataView.endUpdate();
+    calculateSize();
     
+    grid.onSort.subscribe(function(e, args) {
+      // args.multiColumnSort indicates whether or not this is a multi-column sort.
+      // If it is, args.sortCols will have an array of {sortCol:..., sortAsc:...} objects.
+      // If not, the sort column and direction will be in args.sortCol & args.sortAsc.
+
+      // We'll use a simple comparer function here.
+      var comparer = function(a, b) {
+        return naturalSorter(a[args.sortCol.field] , b[args.sortCol.field]);
+      }
+
+      // Delegate the sorting to DataView.
+      // This will fire the change events and update the grid.
+      dataView.sort(comparer, args.sortAsc);
+    });
+    
+    /*
+    grid.onScroll.subscribe(function(e, args) {
+        squishText();
+    });
+    */
+    grid.onColumnsResized.subscribe(function(e, args) {
+       grid.invalidateAllRows();
+       grid.render();
+    });
+    
+}
+
+$.ajax({
+    url: 'do?action=getLibrary',
+    success:function (response){
+        //console.log(response);
+        library=JSON.parse(response);
+        keyWordsToCount=_.countBy(_.flatten(library.map(function(x){return getWordsFromString(x.path)})),function(x){return x});
+        initSlickGrid();
+        dataView.beginUpdate();
+        dataView.setItems(library);
+        dataView.endUpdate();
+        
+        
     }
 });
 
@@ -237,7 +371,7 @@ function openConfigEditor(){
     }else{
         configEditorOpen=1;
     }
-    $.ajax({url:'http://localhost:31415/do?action=getConfigSchemaJSON',success:function(resp){
+    $.ajax({url:'do?action=getConfigSchemaJSON',success:function(resp){
         var dialog=$('<div  title="Configuration">').dialog({
             autoOpen:true,
             close:function(){
@@ -247,16 +381,45 @@ function openConfigEditor(){
             },
             buttons:{
                 Save:function(){
-            
+                    var result = jsonEditor.collect(),
+                        errors;
+
+                    if (result.result.ok) {
+                        console.log(JSON.stringify(result.data, null, 2));
+                    } else {
+                        errors = jsonEditor.getErrors(result.result);
+                        console.log(JSON.stringify(result.result));
+                        for (key in result.result.data){
+                            if(! result.result.data[key].ok){
+                              alert(key + result.result.data[key].msg);
+                            }
+                        }
+                    }
                 }
             }
         });
         dialog.parent().find('.ui-dialog-title').prepend('<img src="win95icons/Icon_22-0.png" style="vertical-align: middle;">');
         var jsonform=$('<div >');
         dialog.append(jsonform);
-        JsonEdit(jsonform,JSON.parse(resp));
+        var jsonEditor = JsonEdit(jsonform,JSON.parse(resp));
     }});
 }
+
+function squishText(){
+    viewport=grid.getViewport();
+    for(var c=0;c<grid.getColumns().length;c++){
+        for(var r=viewport.top;r<=viewport.bottom;r++){
+            _.defer(function(r,c){
+              forceFitSquishy(grid.getCellNode(r,c),undefined,['ui-widget','slick-cell'],gridFontSize);
+            },r,c);
+        }
+    }
+    
+    
+
+    //$('.slick-cell').each(function(){forceFitSquishy(this,undefined,['ui-widget','slick-cell'],gridFontSize)});
+}
+
 </script>
 </body>
 </html>

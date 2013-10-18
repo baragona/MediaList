@@ -642,8 +642,11 @@ button.ui-button::-moz-focus-inner {
 	height: .8em;
 }
 .ui-slider-horizontal .ui-slider-handle {
-	top: -.3em;
-	margin-left: -.6em;
+  margin-top: -2px;
+  top: -5px;
+  margin-left: -.6em;
+  width: 0px;
+  height: 10px;
 }
 .ui-slider-horizontal .ui-slider-range {
 	top: 0;
@@ -787,7 +790,7 @@ body .ui-tooltip {
 /* Component containers
 ----------------------------------*/
 .ui-widget {
-	font-family: Lucida Grande, Sans;
+	font-family: Lucida Grande, microsoft sans serif;
 	font-size: 10px;
 }
 .ui-widget .ui-widget {
@@ -797,7 +800,7 @@ body .ui-tooltip {
 .ui-widget select,
 .ui-widget textarea,
 .ui-widget button {
-	font-family: Lucida Grande, Sans;
+	font-family: Lucida Grande, microsoft sans serif;
 	font-size: 1em;
 }
 .ui-widget-content {
@@ -871,19 +874,6 @@ body .ui-tooltip {
 .ui-state-hover a:visited {
 	color: #000000;
 	text-decoration: none;
-}
-.ui-state-active,
-.ui-widget-content .ui-state-active,
-.ui-widget-header .ui-state-active {
-    padding: 2px;
-    border-image-slice: 3 4;
-    border-image-width: 3px 4px;
-    border-image-outset: 0px;
-    border-image-repeat: stretch;
-    border-image-source: url(file:///Users/kevin/Joobler/win95icons/sunken.png);
-    background:#BEBEBE;
-	font-weight: bold;
-	color: #212121;
 }
 .ui-state-active a,
 .ui-state-active a:link,
