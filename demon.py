@@ -50,6 +50,12 @@ class HelloResource(resource.Resource):
                     return 'opened'
                 if action == 'getConfigSchemaJSON':
                     return ConfigLoader.getConfigSchemaJSON()
+                if action == 'saveConfig':
+                    jscfg = args['newConfigJSON'][0]
+                    print jscfg
+                    config = json.loads(jscfg)
+                    ConfigLoader.saveConfig(config)
+                    return 'saved'
                 else:
                     return 'WTF'
             else:
@@ -62,6 +68,7 @@ class HelloResource(resource.Resource):
                 f=file(filepath)
                 return f.read()
         else:
+            request.setResponseCode(404)
             return 'Unknown command'
         
         return "I am request #" + str(self.numberRequests) + "\n"+request.uri

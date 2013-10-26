@@ -19,6 +19,14 @@ def getConfigSchemaJSON():
     current=getConfig()
     stringArrays=["LibraryRoots",'VideoFileExtensions','AudioFileExtensions']
     numbers=['MaxSearchDepth','MinMovieSize','MinAudioSize']
+    keyToIcon={
+        'LibraryRoots':'win95icons/Icon_21-0.png',
+        'MaxSearchDepth':'win95icons/Icon_45-0.png',
+        'VideoFileExtensions':'win95icons/Icon_43-0.png',
+        'AudioFileExtensions':'win95icons/Icon_43-0.png',
+        'MinMovieSize':'win95icons/Icon_69-0.png',
+        'MinAudioSize':'win95icons/Icon_69-0.png',
+    }
     schema={
         'order': [],
         'properties': {}
@@ -40,6 +48,8 @@ def getConfigSchemaJSON():
             "title": keyNameToNiceName(key),
             "default": current[key]
             }
+    for key in keyToIcon:
+        schema['properties'][key]['icon']=keyToIcon[key];
     return json.dumps(schema)
     
 

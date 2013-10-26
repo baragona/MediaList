@@ -714,15 +714,15 @@ if (typeof Slick === "undefined") {
         if (i < firstResizable || (options.forceFitColumns && i >= lastResizable)) {
           return;
         }
-        $col = $(e);
-        $("<div class='slick-resizable-handle' />")
+        var $parent=$(e);
+        var $handle = $("<div class='slick-resizable-handle' />")
             .appendTo(e)
             .bind("dragstart", function (e, dd) {
               if (!getEditorLock().commitCurrentEdit()) {
                 return false;
               }
               pageX = e.pageX;
-              $(this).parent().addClass("slick-header-column-active");
+              $parent.addClass("slick-header-column-active");
               var shrinkLeewayOnRight = null, stretchLeewayOnRight = null;
               // lock each column's width option to current width
               columnElements.each(function (i, e) {
@@ -853,7 +853,7 @@ if (typeof Slick === "undefined") {
             })
             .bind("dragend", function (e, dd) {
               var newWidth;
-              $(this).parent().removeClass("slick-header-column-active");
+              $parent.removeClass("slick-header-column-active");
               for (j = 0; j < columnElements.length; j++) {
                 c = columns[j];
                 newWidth = $(columnElements[j]).outerWidth();
@@ -866,6 +866,12 @@ if (typeof Slick === "undefined") {
               render();
               trigger(self.onColumnsResized, {});
             });
+            
+            if(columns[i+1]){
+                var $rightSideHandle = $handle.clone(true); //true means copies event handlers
+                $rightSideHandle.addClass('slick-resizable-handle-opposite');
+                $rightSideHandle.appendTo(columnElements[i+1]);
+            }
       });
     }
 

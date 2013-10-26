@@ -1,11 +1,15 @@
 <html>
 <head>
+<title>JOOBLER</title>
 <script type="text/javascript" src="jquery172.min.js"></script>
 <link rel="stylesheet" href="js/slick.grid.css" type="text/css">
 <link rel="stylesheet" href="js/slick-default-theme.css" type="text/css">
 
+<script src="js/helpers.js"></script>
+
 <script src="js/memoize.0.2.5.full.browser.js"></script>
 <script src="squishy.js"></script>
+<script src="kosherForm.js"></script>
 
 <link href="css/JoobJQUI/jquery-ui-1.10.3.custom.css" rel="stylesheet">
 
@@ -48,10 +52,22 @@ searchClear.click(function(){
     $('#searchBox').change();
 });
 $('#searchBox').wrap(searchSpan).after(searchClear);
-
-$('#searchBox').blur(function(){
+function focusSearchBox(){
     $('#searchBox').get(0).focus();
+}
+$('#searchBox').blur(function(){
+    if(shouldSearchBoxStayFocused()){
+        focusSearchBox();
+    }
 });
+focusSearchBox();
+
+function shouldSearchBoxStayFocused(){
+    if($('.ui-dialog').length){
+        return false;
+    }
+    return true;
+}
 $('#searchBox').keydown(function(e){
     if(e.which == 38 || e.which == 40){
         e.preventDefault();
@@ -73,7 +89,7 @@ $( "#zoomSlider" ).slider({
     },30)
 });
 
-var library;
+var library=[];
 var keyWordsToCount;
 var resizeTimeout
   , availableWidth
@@ -91,89 +107,6 @@ var calculateSize = function () {
 };
 $window.on('resize', calculateSize);
 
-function quotemeta (str) {
-  return (str + '').replace(/([\.\\\+\*\?\[\^\]\$\(\)])/g, '\\$1');
-}
-function naturalSorter(as, bs){
-    var a, b, a1, b1, i= 0, n, L,
-    rx=/(\.\d+)|(\d+(\.\d+)?)|([^\d.]+)|(\.\D+)|(\.$)/g;
-    as=as+'';
-    bs=bs+'';
-    if(as=== bs) return 0;
-    a= as.toLowerCase().match(rx);
-    b= bs.toLowerCase().match(rx);
-    L= a.length;
-    while(i<L){
-        if(!b[i]) return 1;
-        a1= a[i],
-        b1= b[i++];
-        if(a1!== b1){
-            n= a1-b1;
-            if(!isNaN(n)) return n;
-            return a1>b1? 1:-1;
-        }
-    }
-    return b[i]? -1:0;
-}
-function displayFileSize(x){
-    var str=0;
-    if(x>0){
-        var exp=Math.floor((Math.log(x*1.03)/Math.log(2))/10);
-        var div=Math.pow(1024,exp);
-        var str=(x/div);
-        if(str<10){
-            str=str.toFixed(1);
-        }else{
-            str=str.toFixed(0);
-        }
-        str=str+' '+(['B','kB','MB','GB','TB'])[exp];
-    }
-    return str;
-}
-function getWordsFromString(str){
-    var matches= str.toLowerCase().match(/[a-z]+/g);
-    if(matches){
-        return matches;
-    }
-    return [];
-}
-var levenshtein = function(min, split){
-    // Levenshtein Algorithm Revisited - WebReflection
-    try{split=!("0")[0]}catch(i){split=true};
-    return function(a, b){
-        if(a == b)return 0;
-        if(!a.length || !b.length)return b.length || a.length;
-        if(split){a = a.split("");b = b.split("")};
-        var len1 = a.length + 1,
-            len2 = b.length + 1,
-            I = 0,
-            i = 0,
-            d = [[0]],
-            c, j, J;
-        while(++i < len2)
-            d[0][i] = i;
-        i = 0;
-        while(++i < len1){
-            J = j = 0;
-            c = a[I];
-            d[i] = [i];
-            while(++j < len2){
-                d[i][j] = min(d[I][j] + 1, d[i][J] + 1, d[I][J] + (c != b[J]));
-                ++J;
-            };
-            ++I;
-        };
-        return d[len1 - 1][len2 - 1];
-    }
-}(Math.min, false);
-function startsWith(a,b){//does a start with b
-    var re=new RegExp('^'+quotemeta(b),'i');
-    if(a.match(re)){
-        return true;
-    }else{
-        return false;
-    }
-}
 function closestMatchInDictionary(word,keyWordsToCount,maxErrors){
     if(keyWordsToCount[word]){
       return word;
@@ -208,7 +141,7 @@ var gridFontSize=0;
 
 function setRowSize(newsize){
     rowHeight=newsize;
-    gridFontSize=(newsize*.8)+'px';
+    gridFontSize=Math.round(newsize*.8)+'px';
     jss('.slick-cell',{fontSize:gridFontSize});
     
     var oldTopRow=grid.getViewport().top;
@@ -277,18 +210,7 @@ function initSlickGrid(){
       var columns = [
         {id: "name", name: "Name", field: "basename",sortable:true,formatter:function(row, cell, value, columnDef, dataContext){
                 var doLogging = (row==0?1:0);
-                
-                //var w =$(grid.getCellNode(row,cell)).outerWidth();
-                //var w = grid.getColumns()[cell].width;
-                var w = columnDef.width;
-                //(text,fontSize,avail,classes)
-                
-                if(doLogging){
-                    //console.log('Recalc');
-                }
-                
-                return calcSquishyHTML(value,gridFontSize,w,['ui-widget','slick-cell'],doLogging);
-                //return value;
+                return calcSquishyHTML(value,gridFontSize,columnDef.width,['ui-widget','slick-cell'],doLogging);
             }},
         {id: "size", name: "Size", field: "size",sortable:true, formatter:function(row, cell, value, columnDef, dataContext){
                 return displayFileSize(value);
@@ -326,8 +248,6 @@ function initSlickGrid(){
       // args.multiColumnSort indicates whether or not this is a multi-column sort.
       // If it is, args.sortCols will have an array of {sortCol:..., sortAsc:...} objects.
       // If not, the sort column and direction will be in args.sortCol & args.sortAsc.
-
-      // We'll use a simple comparer function here.
       var comparer = function(a, b) {
         return naturalSorter(a[args.sortCol.field] , b[args.sortCol.field]);
       }
@@ -349,13 +269,16 @@ function initSlickGrid(){
     
 }
 
+initSlickGrid();
+setRowSize(rowHeight);
+
 $.ajax({
     url: 'do?action=getLibrary',
     success:function (response){
         //console.log(response);
         library=JSON.parse(response);
         keyWordsToCount=_.countBy(_.flatten(library.map(function(x){return getWordsFromString(x.path)})),function(x){return x});
-        initSlickGrid();
+        
         dataView.beginUpdate();
         dataView.setItems(library);
         dataView.endUpdate();
@@ -372,36 +295,51 @@ function openConfigEditor(){
         configEditorOpen=1;
     }
     $.ajax({url:'do?action=getConfigSchemaJSON',success:function(resp){
-        var dialog=$('<div  title="Configuration">').dialog({
+        var dialog=$('<div  title="Configuration">');
+        var jsonform=$('<div >');
+        dialog.append(jsonform);
+        var reclaimer=kosherForm(JSON.parse(resp),jsonform);
+        
+        dialog.dialog({
             autoOpen:true,
+            width:'auto',
+            height:'auto',
+            position:{
+               my: "center",
+               at: "center",
+               of: window
+            },
             close:function(){
                 dialog.dialog("destroy");
                 dialog.detach();
                 configEditorOpen=0;
+                
+                focusSearchBox();
             },
             buttons:{
                 Save:function(){
-                    var result = jsonEditor.collect(),
-                        errors;
-
-                    if (result.result.ok) {
-                        console.log(JSON.stringify(result.data, null, 2));
-                    } else {
-                        errors = jsonEditor.getErrors(result.result);
-                        console.log(JSON.stringify(result.result));
-                        for (key in result.result.data){
-                            if(! result.result.data[key].ok){
-                              alert(key + result.result.data[key].msg);
-                            }
+                    var json=JSON.stringify(reclaimer(),undefined, 2);
+                    
+                    dialog.dialog('close');
+                    
+                    //alert(json);
+                    
+                    var onError=function(){
+                        alert('BAD');
+                    };
+                    
+                    $.ajax({url:'do?action=saveConfig;newConfigJSON='+encodeURIComponent(json),success:function(resp){
+                        if(resp != 'saved'){
+                            onError();
                         }
-                    }
+                    },error:onError
+                        
+                    
+                    });
                 }
             }
         });
         dialog.parent().find('.ui-dialog-title').prepend('<img src="win95icons/Icon_22-0.png" style="vertical-align: middle;">');
-        var jsonform=$('<div >');
-        dialog.append(jsonform);
-        var jsonEditor = JsonEdit(jsonform,JSON.parse(resp));
     }});
 }
 
