@@ -79,11 +79,3 @@ def testFileAgainstFFFList(filepath, list):
     else:
         print 'size mismatch'
         return 0
-
-    
-if __name__ == "__main__":
-    fff = getFFF("/Volumes/Data/A Torrent Download/Feral Sync/The Hitchhiker's Guide to the Galaxy.mp4")
-    print fff
-    print 'This should say 1'
-    print testFileAgainstFFFList("/Volumes/Data/A Torrent Download/Feral Sync/The Hitchhiker's Guide to the Galaxy.mp4",[fff])
-
