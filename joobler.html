@@ -10,6 +10,7 @@
 <script src="js/memoize.0.2.5.full.browser.js"></script>
 <script src="squishy.js"></script>
 <script src="kosherForm.js"></script>
+<script src="filechooser.js"></script>
 
 <link href="css/JoobJQUI/jquery-ui-1.10.3.custom.css" rel="stylesheet">
 
@@ -236,7 +237,7 @@ function initSlickGrid(){
         var cell = grid.getCellFromEvent(e);
         var fileId = dataView.getItem(cell.row).id;
         $.ajax({
-            url: 'http://localhost:31415/do?action=openFile;fileId='+fileId,
+            url: 'do?action=openFile;fileId='+fileId,
         });
         
     });    
@@ -343,21 +344,44 @@ function openConfigEditor(){
     }});
 }
 
-function squishText(){
-    viewport=grid.getViewport();
-    for(var c=0;c<grid.getColumns().length;c++){
-        for(var r=viewport.top;r<=viewport.bottom;r++){
-            _.defer(function(r,c){
-              forceFitSquishy(grid.getCellNode(r,c),undefined,['ui-widget','slick-cell'],gridFontSize);
-            },r,c);
-        }
-    }
-    
-    
-
-    //$('.slick-cell').each(function(){forceFitSquishy(this,undefined,['ui-widget','slick-cell'],gridFontSize)});
+function splitPath(path,cont){
+    $.ajax({
+        url: 'do?action=splitPath;path='+encodeURIComponent(path),
+        success:function(resp){
+            try{
+                var dirs=JSON.parse(resp);
+            }catch(e){}
+            cont(dirs);
+        },
+        error:cont
+    });
 }
 
+var filedialog=$('<div>');
+function getFilesInPath(path,cont){
+    $.ajax({
+        url: 'do?action=getFilesInPath;path='+encodeURIComponent(path),
+        success:function(resp){
+            try{
+                var files=JSON.parse(resp);
+            }catch(e){}
+            cont(files);
+        },
+        error:cont
+    });
+}
+fileChooser(filedialog, getFilesInPath, ["/", "Applications", "VLC.app"]);
+filedialog.dialog({
+            autoOpen:true,
+            width:500,
+            height:300,
+            position:{
+               my: "center",
+               at: "center",
+               of: window
+            }
+          });
+          
 </script>
 </body>
 </html>

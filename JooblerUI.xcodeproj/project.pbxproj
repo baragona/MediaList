@@ -1,0 +1,353 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0A0F209D1802109900A75DB1 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A0F209C1802109900A75DB1 /* Cocoa.framework */; };
+		0A0F20A71802109900A75DB1 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0A0F20A51802109900A75DB1 /* InfoPlist.strings */; };
+		0A0F20A91802109900A75DB1 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A0F20A81802109900A75DB1 /* main.m */; };
+		0A0F20AD1802109900A75DB1 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 0A0F20AB1802109900A75DB1 /* Credits.rtf */; };
+		0A0F20B01802109900A75DB1 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A0F20AF1802109900A75DB1 /* AppDelegate.m */; };
+		0A0F20B31802109900A75DB1 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0A0F20B11802109900A75DB1 /* MainMenu.xib */; };
+		0A0F20BC180222E700A75DB1 /* joobler.icns in Resources */ = {isa = PBXBuildFile; fileRef = 0A0F20BB180222E700A75DB1 /* joobler.icns */; };
+		0AABEB9C1BEEC36900134FE7 /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0AABEB9B1BEEC36900134FE7 /* Python.framework */; };
+		0AABEB9E1BEEC36E00134FE7 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0AABEB9D1BEEC36E00134FE7 /* WebKit.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0A0F20981802109900A75DB1 /* JooblerUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JooblerUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0A0F209C1802109900A75DB1 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		0A0F209F1802109900A75DB1 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		0A0F20A01802109900A75DB1 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		0A0F20A11802109900A75DB1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		0A0F20A41802109900A75DB1 /* JooblerUI-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "JooblerUI-Info.plist"; sourceTree = "<group>"; };
+		0A0F20A61802109900A75DB1 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		0A0F20A81802109900A75DB1 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		0A0F20AA1802109900A75DB1 /* JooblerUI-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JooblerUI-Prefix.pch"; sourceTree = "<group>"; };
+		0A0F20AC1802109900A75DB1 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		0A0F20AE1802109900A75DB1 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		0A0F20AF1802109900A75DB1 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		0A0F20B21802109900A75DB1 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		0A0F20BB180222E700A75DB1 /* joobler.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = joobler.icns; sourceTree = "<group>"; };
+		0AABEB9B1BEEC36900134FE7 /* Python.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python.framework; path = System/Library/Frameworks/Python.framework; sourceTree = SDKROOT; };
+		0AABEB9D1BEEC36E00134FE7 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0A0F20951802109900A75DB1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0AABEB9E1BEEC36E00134FE7 /* WebKit.framework in Frameworks */,
+				0AABEB9C1BEEC36900134FE7 /* Python.framework in Frameworks */,
+				0A0F209D1802109900A75DB1 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0A0F208D1802109900A75DB1 = {
+			isa = PBXGroup;
+			children = (
+				0A0F20BB180222E700A75DB1 /* joobler.icns */,
+				0A0F20A21802109900A75DB1 /* JooblerUI */,
+				0A0F209B1802109900A75DB1 /* Frameworks */,
+				0A0F20991802109900A75DB1 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		0A0F20991802109900A75DB1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0A0F20981802109900A75DB1 /* JooblerUI.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0A0F209B1802109900A75DB1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0AABEB9D1BEEC36E00134FE7 /* WebKit.framework */,
+				0AABEB9B1BEEC36900134FE7 /* Python.framework */,
+				0A0F209C1802109900A75DB1 /* Cocoa.framework */,
+				0A0F209E1802109900A75DB1 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		0A0F209E1802109900A75DB1 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0A0F209F1802109900A75DB1 /* AppKit.framework */,
+				0A0F20A01802109900A75DB1 /* CoreData.framework */,
+				0A0F20A11802109900A75DB1 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		0A0F20A21802109900A75DB1 /* JooblerUI */ = {
+			isa = PBXGroup;
+			children = (
+				0A0F20AE1802109900A75DB1 /* AppDelegate.h */,
+				0A0F20AF1802109900A75DB1 /* AppDelegate.m */,
+				0A0F20B11802109900A75DB1 /* MainMenu.xib */,
+				0A0F20A31802109900A75DB1 /* Supporting Files */,
+			);
+			path = JooblerUI;
+			sourceTree = "<group>";
+		};
+		0A0F20A31802109900A75DB1 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				0A0F20A41802109900A75DB1 /* JooblerUI-Info.plist */,
+				0A0F20A51802109900A75DB1 /* InfoPlist.strings */,
+				0A0F20A81802109900A75DB1 /* main.m */,
+				0A0F20AA1802109900A75DB1 /* JooblerUI-Prefix.pch */,
+				0A0F20AB1802109900A75DB1 /* Credits.rtf */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0A0F20971802109900A75DB1 /* JooblerUI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0A0F20B61802109900A75DB1 /* Build configuration list for PBXNativeTarget "JooblerUI" */;
+			buildPhases = (
+				0A0F20941802109900A75DB1 /* Sources */,
+				0A0F20951802109900A75DB1 /* Frameworks */,
+				0A0F20961802109900A75DB1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = JooblerUI;
+			productName = JooblerUI;
+			productReference = 0A0F20981802109900A75DB1 /* JooblerUI.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0A0F208F1802109900A75DB1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0920;
+			};
+			buildConfigurationList = 0A0F20921802109900A75DB1 /* Build configuration list for PBXProject "JooblerUI" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 0A0F208D1802109900A75DB1;
+			productRefGroup = 0A0F20991802109900A75DB1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				0A0F20971802109900A75DB1 /* JooblerUI */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0A0F20961802109900A75DB1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A0F20BC180222E700A75DB1 /* joobler.icns in Resources */,
+				0A0F20A71802109900A75DB1 /* InfoPlist.strings in Resources */,
+				0A0F20AD1802109900A75DB1 /* Credits.rtf in Resources */,
+				0A0F20B31802109900A75DB1 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0A0F20941802109900A75DB1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A0F20A91802109900A75DB1 /* main.m in Sources */,
+				0A0F20B01802109900A75DB1 /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		0A0F20A51802109900A75DB1 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0A0F20A61802109900A75DB1 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		0A0F20AB1802109900A75DB1 /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0A0F20AC1802109900A75DB1 /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		0A0F20B11802109900A75DB1 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0A0F20B21802109900A75DB1 /* en */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		0A0F20B41802109900A75DB1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		0A0F20B51802109900A75DB1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		0A0F20B71802109900A75DB1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "JooblerUI/JooblerUI-Prefix.pch";
+				INFOPLIST_FILE = "JooblerUI/JooblerUI-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_BUNDLE_IDENTIFIER = "jewcorp.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		0A0F20B81802109900A75DB1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "JooblerUI/JooblerUI-Prefix.pch";
+				INFOPLIST_FILE = "JooblerUI/JooblerUI-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_BUNDLE_IDENTIFIER = "jewcorp.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0A0F20921802109900A75DB1 /* Build configuration list for PBXProject "JooblerUI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0A0F20B41802109900A75DB1 /* Debug */,
+				0A0F20B51802109900A75DB1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0A0F20B61802109900A75DB1 /* Build configuration list for PBXNativeTarget "JooblerUI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0A0F20B71802109900A75DB1 /* Debug */,
+				0A0F20B81802109900A75DB1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0A0F208F1802109900A75DB1 /* Project object */;
+}
