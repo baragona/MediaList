@@ -1,5 +1,3 @@
-*.py[cod]
-joobler.db
-joobler_config.json
-
-
+**/*.demon-*
+*.pyc
+.DS_Store
