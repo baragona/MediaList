@@ -123,7 +123,9 @@ void start_python(void * data){
     
     
     //usleep(250000);
-    [embedded_browser setMainFrameURL:@"http://localhost:43590/joobler.html"];
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://localhost:43590/joobler.html"]];
+
+    [embedded_browser loadRequest:request];
     //start_python();
     
     
