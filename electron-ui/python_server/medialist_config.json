@@ -1,0 +1,16 @@
+{
+    "AudioFileExtensions": [
+        "asdf"
+    ],
+    "LibraryRoots": [],
+    "MaxSearchDepth": 7,
+    "MinAudioSize": 307200,
+    "MinMovieSize": 52428800,
+    "VideoFileExtensions": [
+        "avi",
+        "mp4",
+        "mkv",
+        "m4v"
+    ],
+    "openVideosWith": "/Applications/VLC.app"
+}
