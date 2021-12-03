@@ -18,81 +18,83 @@ defaults = {
 '''
 
 schema = {
-  "order": [
-    "LibraryRoots",
-    "openVideosWith",
-    "VideoFileExtensions",
-    "AudioFileExtensions",
-    "MaxSearchDepth",
-    "MinMovieSize",
-    "MinAudioSize"
-  ],
-  "properties": {
-    "openVideosWith":{
-      "default":'/Applications/VLC.app',
-      'type':'string',
-      'icon':'win95icons/Icon_61-0.png'
-    },
-    "AudioFileExtensions": {
-      "default": [],
-      "items": {
-        "type": "string"
-      },
-      "type": "array",
-      'icon':'win95icons/Icon_43-0.png'
-    },
-    "MinAudioSize": {
-      "default": 300*1024,
-      "type": "number",
-      'icon':'win95icons/Icon_69-0.png'
-    },
-    "VideoFileExtensions": {
-      "default": [
-        "avi",
-        "mp4",
-        "mkv",
-        "m4v"
-      ],
-      "items": {
-        "type": "string"
-      },
-      "type": "array",
-      'icon':'win95icons/Icon_43-0.png'
-    },
-    "MaxSearchDepth": {
-      "default": 7,
-      "type": "number",
-      'icon':'win95icons/Icon_45-0.png'
-    },
-    "LibraryRoots": {
-      "default": [      ],
-      'icon':'win95icons/Icon_21-0.png',
-      "items": {
-        "type": "string"
-      },
-      "type": "array"
-    },
-    "MinMovieSize": {
-      "default": 52428800,
-      "type": "number",
-      'icon':'win95icons/Icon_69-0.png'
+    "order": [
+        "LibraryRoots",
+        "openVideosWith",
+        "VideoFileExtensions",
+        "AudioFileExtensions",
+        "MaxSearchDepth",
+        "MinMovieSize",
+        "MinAudioSize"
+    ],
+    "properties": {
+        "openVideosWith": {
+            "default": '/Applications/VLC.app',
+            'type': 'string',
+            'icon': 'win95icons/Icon_61-0.png'
+        },
+        "AudioFileExtensions": {
+            "default": [],
+            "items": {
+                "type": "string"
+            },
+            "type": "array",
+            'icon': 'win95icons/Icon_43-0.png'
+        },
+        "MinAudioSize": {
+            "default": 300 * 1024,
+            "type": "number",
+            'icon': 'win95icons/Icon_69-0.png'
+        },
+        "VideoFileExtensions": {
+            "default": [
+                "avi",
+                "mp4",
+                "mkv",
+                "m4v"
+            ],
+            "items": {
+                "type": "string"
+            },
+            "type": "array",
+            'icon': 'win95icons/Icon_43-0.png'
+        },
+        "MaxSearchDepth": {
+            "default": 7,
+            "type": "number",
+            'icon': 'win95icons/Icon_45-0.png'
+        },
+        "LibraryRoots": {
+            "default": [],
+            'icon': 'win95icons/Icon_21-0.png',
+            "items": {
+                "type": "string"
+            },
+            "type": "array"
+        },
+        "MinMovieSize": {
+            "default": 52428800,
+            "type": "number",
+            'icon': 'win95icons/Icon_69-0.png'
+        }
     }
-  }
 }
 
-defaults={}
+defaults = {}
 for key in schema['properties']:
-    defaults[key]=schema['properties'][key]['default']
-    
+    defaults[key] = schema['properties'][key]['default']
+
+
 def getConfigSchemaJSON():
-    current=getConfig()
-    sch=copy.deepcopy(schema)
-    for  key in sch['properties']:
+    current = getConfig()
+    sch = copy.deepcopy(schema)
+    for key in sch['properties']:
         it = sch['properties'][key]
-        it['title']=keyNameToNiceName(key)
-        it['default']=current[key]
+        it['title'] = keyNameToNiceName(key)
+        it['default'] = current[key]
     return json.dumps(sch)
-    
+
+
 '''
 def getConfigSchemaJSON():
     current=getConfig()
@@ -132,13 +134,14 @@ def getConfigSchemaJSON():
     return json.dumps(schema)
 '''
 
+
 def keyNameToNiceName(key):
-    return ' '.join(re.findall('[A-Z][^A-Z]*',key))
+    return ' '.join(re.findall('[A-Z][^A-Z]*', key))
+
 
 def getConfig():
-
-    cfg={}
-    file=None
+    cfg = {}
+    file = None
     try:
         file = open('medialist_config.json')
     except IOError:
@@ -152,27 +155,26 @@ def getConfig():
     else:
         print('using defaults for everything')
 
-    #print 'couldnt open config file'+e
-    
+    # print 'couldnt open config file'+e
 
     for key in defaults:
         if not key in cfg:
             cfg[key] = defaults[key]
             print('using defaults for config key ' + key)
     return cfg
-    
+
+
 def saveConfig(cfg):
-    file = open('medialist_config.json','w')
-    file.write(json.dumps(cfg,indent=4,sort_keys=True))
+    file = open('medialist_config.json', 'w')
+    file.write(json.dumps(cfg, indent=4, sort_keys=True))
     file.close()
-    
-    
-#If this script is run as a standalone
-#Small test program
+
+
+# If this script is run as a standalone
+# Small test program
 if __name__ == "__main__":
     pp = pprint.PrettyPrinter(indent=4)
     config = getConfig()
     pp.pprint(config)
 
     saveConfig(config)
-

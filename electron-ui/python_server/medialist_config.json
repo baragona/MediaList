@@ -1,10 +1,12 @@
 {
     "AudioFileExtensions": [
-        "asdf"
+        "mp3"
     ],
-    "LibraryRoots": [],
+    "LibraryRoots": [
+        "/Users/kevin/Data/A Torrent Download"
+    ],
     "MaxSearchDepth": 7,
-    "MinAudioSize": 307200,
+    "MinAudioSize": null,
     "MinMovieSize": 52428800,
     "VideoFileExtensions": [
         "avi",
