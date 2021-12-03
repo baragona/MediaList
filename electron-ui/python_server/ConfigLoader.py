@@ -140,7 +140,7 @@ def getConfig():
     cfg={}
     file=None
     try:
-        file = open('joobler_config.json')
+        file = open('medialist_config.json')
     except IOError:
         print('couldnt open config file')
     if file:
@@ -162,7 +162,7 @@ def getConfig():
     return cfg
     
 def saveConfig(cfg):
-    file = open('joobler_config.json','w')
+    file = open('medialist_config.json','w')
     file.write(json.dumps(cfg,indent=4,sort_keys=True))
     file.close()
     

@@ -31,7 +31,7 @@ function createWindow () {
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
-        title: "Joobler",
+        title: "MediaList",
 
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')

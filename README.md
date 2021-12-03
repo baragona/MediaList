@@ -1,4 +1,4 @@
-Joobler
+MediaList
 =======
 
 Media library manager.

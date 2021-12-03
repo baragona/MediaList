@@ -2,7 +2,7 @@
 
 import sqlite3 as lite
 def connect():
-        return lite.connect('joobler.db')
+        return lite.connect('medialist.db')
 
 
 def dict_from_row(row):
