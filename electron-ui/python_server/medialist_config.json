@@ -1,18 +1,18 @@
 {
-    "AudioFileExtensions": [
-        "mp3"
-    ],
     "LibraryRoots": [
         "/Users/kevin/Data/A Torrent Download"
     ],
-    "MaxSearchDepth": 7,
-    "MinAudioSize": null,
-    "MinMovieSize": 52428800,
+    "openVideosWith": "/Applications/VLC.app",
     "VideoFileExtensions": [
         "avi",
         "mp4",
         "mkv",
         "m4v"
     ],
-    "openVideosWith": "/Applications/VLC.app"
+    "AudioFileExtensions": [
+        "mp3"
+    ],
+    "MaxSearchDepth": 7,
+    "MinMovieSize": 52428800,
+    "MinAudioSize": 5000
 }

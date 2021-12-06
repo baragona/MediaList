@@ -1,5 +1,13 @@
 # electron-quick-start
 
+# file scanner
+
+$(npm bin)/electron ./dist/filescanner.js
+
+# IF YOU HAVE DEPENDENCY ISSUES
+
+$(npm bin)/electron-rebuild
+
 **Clone and run for a quick way to see Electron in action.**
 
 This is a minimal Electron application based on the [Quick Start Guide](https://electronjs.org/docs/latest/tutorial/quick-start) within the Electron documentation.

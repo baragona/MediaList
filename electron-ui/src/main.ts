@@ -1,31 +1,9 @@
 // Modules to control application life and create native browser window
-import child_process from "child_process";
 import { app, BrowserWindow } from "electron";
 import path from "path";
-const child = child_process.exec("python3 python_server/demon.py");
+import { startDaemon } from "./demon";
 
-function exitHandler(
-  options: { cleanup?: boolean; exit?: boolean },
-  exitCode: number
-) {
-  child.kill();
-  if (options.cleanup) console.log("clean");
-  if (exitCode || exitCode === 0) console.log(exitCode);
-  if (options.exit) process.exit();
-}
-
-//do something when app is closing
-process.on("exit", exitHandler.bind(null, { cleanup: true }));
-
-//catches ctrl+c event
-process.on("SIGINT", exitHandler.bind(null, { exit: true }));
-
-// catches "kill pid" (for example: nodemon restart)
-process.on("SIGUSR1", exitHandler.bind(null, { exit: true }));
-process.on("SIGUSR2", exitHandler.bind(null, { exit: true }));
-
-//catches uncaught exceptions
-process.on("uncaughtException", exitHandler.bind(null, { exit: true }));
+startDaemon();
 
 function createWindow() {
   // Create the browser window.
@@ -43,7 +21,7 @@ function createWindow() {
   mainWindow.loadFile("../resources/index.html");
 
   // Open the DevTools.
-  //   mainWindow.webContents.openDevTools()
+  // mainWindow.webContents.openDevTools();
 }
 
 // This method will be called when Electron has finished
