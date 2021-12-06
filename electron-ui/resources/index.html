@@ -251,7 +251,7 @@
           var cell = grid.getCellFromEvent(e);
           var fileId = dataView.getItem(cell.row).id;
           $.ajax({
-            url: apiBase + "do?action=openFile&fileId=" + fileId,
+            url: apiBase + "openFile?fileId=" + fileId,
           });
         });
 
@@ -286,7 +286,7 @@
       setRowSize(rowHeight);
 
       $.ajax({
-        url: apiBase + "do?action=getLibrary",
+        url: apiBase + "getLibrary",
         success: function (response) {
           //console.log(response);
           library = JSON.parse(response);
@@ -315,7 +315,7 @@
           configEditorOpen = 1;
         }
         $.ajax({
-          url: apiBase + "do?action=getConfigSchemaJSON",
+          url: apiBase + "getConfigSchemaJSON",
           success: function (resp) {
             var dialog = $('<div  title="Configuration">');
             var jsonform = $("<div >");
@@ -353,7 +353,7 @@
                   $.ajax({
                     url:
                       apiBase +
-                      "do?action=saveConfig&newConfigJSON=" +
+                      "saveConfig?newConfigJSON=" +
                       encodeURIComponent(json),
                     success: function (resp) {
                       if (resp != "saved") {
@@ -377,7 +377,7 @@
 
       function splitPath(path, cont) {
         $.ajax({
-          url: apiBase + "do?action=splitPath&path=" + encodeURIComponent(path),
+          url: apiBase + "splitPath?path=" + encodeURIComponent(path),
           success: function (resp) {
             try {
               var dirs = JSON.parse(resp);
@@ -391,10 +391,7 @@
       var filedialog = $("<div>");
       function getFilesInPath(path, cont) {
         $.ajax({
-          url:
-            apiBase +
-            "do?action=getFilesInPath&path=" +
-            encodeURIComponent(path),
+          url: apiBase + "getFilesInPath?path=" + encodeURIComponent(path),
           success: function (resp) {
             try {
               var files = JSON.parse(resp);
