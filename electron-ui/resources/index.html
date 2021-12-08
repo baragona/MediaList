@@ -101,6 +101,10 @@
       };
       $window.on("resize", calculateSize);
 
+      function objectToQueryString(obj) {
+        return "?" + new URLSearchParams(obj).toString();
+      }
+
       function closestMatchInDictionary(word, keyWordsToCount, maxErrors) {
         if (keyWordsToCount[word]) {
           return word;
@@ -250,9 +254,7 @@
         grid.onDblClick.subscribe(function (e, args) {
           var cell = grid.getCellFromEvent(e);
           var fileId = dataView.getItem(cell.row).id;
-          $.ajax({
-            url: apiBase + "openFile?fileId=" + fileId,
-          });
+          fetch(apiBase + "openFile" + objectToQueryString({ fileId: fileId }));
         });
 
         grid.init();
@@ -272,10 +274,10 @@
         });
 
         /*
-    grid.onScroll.subscribe(function(e, args) {
-        squishText();
-    });
-    */
+grid.onScroll.subscribe(function(e, args) {
+    squishText();
+});
+*/
         grid.onColumnsResized.subscribe(function (e, args) {
           grid.invalidateAllRows();
           grid.render();
@@ -285,133 +287,88 @@
       initSlickGrid();
       setRowSize(rowHeight);
 
-      $.ajax({
-        url: apiBase + "getLibrary",
-        success: function (response) {
-          //console.log(response);
-          library = JSON.parse(response);
-          keyWordsToCount = _.countBy(
-            _.flatten(
-              library.map(function (x) {
-                return getWordsFromString(x.path);
-              })
-            ),
-            function (x) {
-              return x;
-            }
-          );
+      (async function () {
+        const libraryResult = await fetch(apiBase + "getLibrary");
+        library = await libraryResult.json();
+        keyWordsToCount = _.countBy(
+          _.flatten(
+            library.map(function (x) {
+              return getWordsFromString(x.path);
+            })
+          ),
+          function (x) {
+            return x;
+          }
+        );
 
-          dataView.beginUpdate();
-          dataView.setItems(library);
-          dataView.endUpdate();
-        },
-      });
-
+        dataView.beginUpdate();
+        dataView.setItems(library);
+        dataView.endUpdate();
+      })();
       var configEditorOpen = 0;
-      function openConfigEditor() {
+
+      async function openConfigEditor() {
         if (configEditorOpen) {
           return;
         } else {
           configEditorOpen = 1;
         }
-        $.ajax({
-          url: apiBase + "getConfigSchemaJSON",
-          success: function (resp) {
-            var dialog = $('<div  title="Configuration">');
-            var jsonform = $("<div >");
-            dialog.append(jsonform);
-            var reclaimer = kosherForm(JSON.parse(resp), jsonform);
+        const resp = await fetch(apiBase + "getConfigSchemaJSON");
+        const respText = await resp.text();
+        const json = JSON.parse(respText);
+        var dialog = $('<div  title="Configuration">');
+        var jsonform = $("<div >");
+        dialog.append(jsonform);
+        var reclaimer = kosherForm(json, jsonform);
 
-            dialog.dialog({
-              autoOpen: true,
-              width: "auto",
-              height: "auto",
-              position: {
-                my: "center",
-                at: "center",
-                of: window,
-              },
-              close: function () {
-                dialog.dialog("destroy");
-                dialog.detach();
-                configEditorOpen = 0;
+        dialog.dialog({
+          autoOpen: true,
+          width: "auto",
+          height: "auto",
+          position: {
+            my: "center",
+            at: "center",
+            of: window,
+          },
+          close: function () {
+            dialog.dialog("destroy");
+            dialog.detach();
+            configEditorOpen = 0;
 
-                focusSearchBox();
-              },
-              buttons: {
-                Save: function () {
-                  var json = JSON.stringify(reclaimer(), undefined, 2);
+            focusSearchBox();
+          },
+          buttons: {
+            Save: function () {
+              (async function () {
+                var json = JSON.stringify(reclaimer(), undefined, 2);
 
-                  dialog.dialog("close");
+                dialog.dialog("close");
 
-                  //alert(json);
+                //alert(json);
 
-                  var onError = function () {
-                    alert("BAD");
-                  };
+                const onError = function () {
+                  alert("BAD");
+                };
 
-                  $.ajax({
-                    url:
-                      apiBase +
-                      "saveConfig?newConfigJSON=" +
-                      encodeURIComponent(json),
-                    success: function (resp) {
-                      if (resp != "saved") {
-                        onError();
-                      }
-                    },
-                    error: onError,
-                  });
-                },
-              },
-            });
-            dialog
-              .parent()
-              .find(".ui-dialog-title")
-              .prepend(
-                '<img src="win95icons/Icon_22-0.png" style="vertical-align: middle;">'
-              );
+                const params = { newConfigJSON: json };
+                const saveResult = await fetch(
+                  apiBase + "saveConfig" + objectToQueryString(params)
+                );
+                const saveResultText = await saveResult.text();
+                if (saveResultText != "saved") {
+                  onError();
+                }
+              })();
+            },
           },
         });
+        dialog
+          .parent()
+          .find(".ui-dialog-title")
+          .prepend(
+            '<img src="win95icons/Icon_22-0.png" style="vertical-align: middle;">'
+          );
       }
-
-      function splitPath(path, cont) {
-        $.ajax({
-          url: apiBase + "splitPath?path=" + encodeURIComponent(path),
-          success: function (resp) {
-            try {
-              var dirs = JSON.parse(resp);
-            } catch (e) {}
-            cont(dirs);
-          },
-          error: cont,
-        });
-      }
-
-      var filedialog = $("<div>");
-      function getFilesInPath(path, cont) {
-        $.ajax({
-          url: apiBase + "getFilesInPath?path=" + encodeURIComponent(path),
-          success: function (resp) {
-            try {
-              var files = JSON.parse(resp);
-            } catch (e) {}
-            cont(files);
-          },
-          error: cont,
-        });
-      }
-      fileChooser(filedialog, getFilesInPath, ["/", "Applications", "VLC.app"]);
-      filedialog.dialog({
-        autoOpen: true,
-        width: 500,
-        height: 300,
-        position: {
-          my: "center",
-          at: "center",
-          of: window,
-        },
-      });
     </script>
   </body>
 </html>

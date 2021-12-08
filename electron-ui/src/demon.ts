@@ -1,11 +1,8 @@
 import bodyParser from "body-parser";
 import { spawn } from "child_process";
 import express from "express";
-import fs from "fs";
-import pathLib from "path";
 import { getConfig, getConfigSchemaJSON, saveConfig } from "./ConfigLoader";
 import { connect } from "./dbaccess";
-import { isapp, os_path_split_asunder } from "./pathsplit";
 const app = express();
 app.use(bodyParser.json());
 
@@ -81,42 +78,6 @@ app.get("/saveConfig", function (req, res) {
   const config = JSON.parse(jscfg);
   saveConfig(config);
   res.send("saved");
-});
-
-app.get("/getFilesInPath", function (req, res) {
-  const argObj = getArgsFromQueryString(req);
-
-  const givenpath = argObj.path;
-  const files = fs.readdirSync(givenpath);
-  const fdata = [];
-  for (const fpath of files) {
-    try {
-      const thispath = pathLib.join(givenpath, fpath);
-      var type = "file";
-      if (isapp(thispath)) {
-        type = "app";
-      }
-      if (fs.statSync(thispath).isDirectory()) {
-        type = "dir";
-      }
-      const readable = fs.accessSync(thispath, fs.constants.R_OK);
-      fdata.push({
-        name: fpath,
-        type: type,
-        readable: readable,
-      });
-    } catch (e) {
-      console.log("error on file listing files in path:", e);
-    }
-  }
-  res.send(JSON.stringify(fdata));
-});
-
-app.get("/splitPath", function (req, res) {
-  const argObj = getArgsFromQueryString(req);
-
-  const path = argObj.path;
-  res.send(JSON.stringify(os_path_split_asunder(path)));
 });
 
 export function startDaemon() {
