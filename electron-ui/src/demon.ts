@@ -80,6 +80,73 @@ app.get("/saveConfig", function (req, res) {
   res.send("saved");
 });
 
+app.post("/addFile", function (req, res) {
+  try {
+    const { filePath } = req.body;
+    
+    if (!filePath || typeof filePath !== 'string') {
+      return res.status(400).json({ success: false, error: "File path is required" });
+    }
+
+    const fs = require('fs');
+    const path = require('path');
+    const { getConfig } = require('./ConfigLoader');
+    
+    const config = getConfig();
+    const videoFileExtensions = config.VideoFileExtensions;
+    const minMovieSize = config.MinMovieSize;
+    
+    // Check if file exists
+    if (!fs.existsSync(filePath)) {
+      return res.status(400).json({ success: false, error: "File does not exist" });
+    }
+    
+    // Get file stats
+    const stats = fs.statSync(filePath);
+    
+    // Check if it's a file (not directory)
+    if (!stats.isFile()) {
+      return res.status(400).json({ success: false, error: "Path is not a file" });
+    }
+    
+    // Check file size
+    if (stats.size < minMovieSize) {
+      return res.status(400).json({ success: false, error: "File is too small (below minimum movie size)" });
+    }
+    
+    // Check file extension
+    const fileExtension = path.extname(filePath).toLowerCase().substring(1);
+    if (!videoFileExtensions.includes(fileExtension)) {
+      return res.status(400).json({ success: false, error: `File extension '${fileExtension}' is not supported` });
+    }
+    
+    // Get file details
+    const realPath = fs.realpathSync(filePath);
+    const basename = path.basename(filePath);
+    const size = stats.size;
+    const modified = stats.mtime.getTime();
+    const added = Date.now();
+    const fff = "pending";
+    
+    // Insert into database
+    const con = connect();
+    try {
+      con.prepare(
+        "insert or ignore into library (path,basename,size,modified,added,fff) values (?,?,?,?,?,?)"
+      ).run(realPath, basename, size, modified, added, fff);
+      
+      res.json({ success: true, message: "File added successfully" });
+    } catch (dbError) {
+      console.error("Database error:", dbError);
+      res.status(500).json({ success: false, error: "Database error occurred" });
+    }
+    
+  } catch (error) {
+    console.error("Error adding file:", error);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+});
+
 export function startDaemon() {
   app.listen(43590, function () {
     console.log("listening on port 43590");

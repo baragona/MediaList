@@ -33,6 +33,7 @@
     <button id="editConfigButton" style="vertical-align: middle">
       <img src="win95icons/Icon_22-0.png" />
     </button>
+    <div id="notification" style="display: none; position: fixed; top: 10px; right: 10px; padding: 10px; border-radius: 4px; z-index: 1000; min-width: 200px; text-align: center;"></div>
     <div id="grid" style="border: 1px solid black"></div>
 
     <script>
@@ -306,6 +307,143 @@ grid.onScroll.subscribe(function(e, args) {
         dataView.endUpdate();
       })();
       var configEditorOpen = 0;
+
+      // Notification system
+      function showNotification(message, type = 'info') {
+        const notification = $('#notification');
+        notification.text(message);
+        
+        // Set colors based on type
+        if (type === 'success') {
+          notification.css({
+            'background-color': '#d4edda',
+            'color': '#155724',
+            'border': '1px solid #c3e6cb'
+          });
+        } else if (type === 'error') {
+          notification.css({
+            'background-color': '#f8d7da',
+            'color': '#721c24',
+            'border': '1px solid #f5c6cb'
+          });
+        } else {
+          notification.css({
+            'background-color': '#d1ecf1',
+            'color': '#0c5460',
+            'border': '1px solid #bee5eb'
+          });
+        }
+        
+        notification.fadeIn();
+        
+        // Auto-hide after 4 seconds
+        setTimeout(() => {
+          notification.fadeOut();
+        }, 4000);
+      }
+
+      // Drag and drop functionality
+      let dragCounter = 0;
+
+      $(document).on('dragenter', function(e) {
+        e.preventDefault();
+        dragCounter++;
+        $('body').css('background-color', 'rgba(0,123,255,0.05)');
+      });
+
+      $(document).on('dragleave', function(e) {
+        e.preventDefault();
+        dragCounter--;
+        if (dragCounter === 0) {
+          $('body').css('background-color', '');
+        }
+      });
+
+      $(document).on('dragover', function(e) {
+        e.preventDefault();
+      });
+
+      $(document).on('drop', async function(e) {
+        e.preventDefault();
+        dragCounter = 0;
+        $('body').css('background-color', '');
+        
+        const files = e.originalEvent.dataTransfer.files;
+        
+        if (files.length === 0) {
+          showNotification('No files dropped', 'error');
+          return;
+        }
+        
+        showNotification(`Processing ${files.length} file(s)...`, 'info');
+        
+        let successCount = 0;
+        let errorCount = 0;
+        
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const filePath = file.path;
+          
+          try {
+            const response = await fetch(apiBase + 'addFile', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ filePath: filePath })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              successCount++;
+            } else {
+              errorCount++;
+              console.error(`Failed to add ${file.name}: ${result.error}`);
+            }
+          } catch (error) {
+            errorCount++;
+            console.error(`Error adding ${file.name}:`, error);
+          }
+        }
+        
+        // Show final notification
+        if (successCount > 0 && errorCount === 0) {
+          showNotification(`Successfully added ${successCount} file(s) to library`, 'success');
+          // Refresh the library display
+          await refreshLibrary();
+        } else if (successCount > 0 && errorCount > 0) {
+          showNotification(`Added ${successCount} file(s), failed to add ${errorCount} file(s)`, 'error');
+          await refreshLibrary();
+        } else {
+          showNotification(`Failed to add all ${errorCount} file(s)`, 'error');
+        }
+      });
+
+      // Function to refresh the library display
+      async function refreshLibrary() {
+        try {
+          const libraryResult = await fetch(apiBase + "getLibrary");
+          library = await libraryResult.json();
+          keyWordsToCount = _.countBy(
+            _.flatten(
+              library.map(function (x) {
+                return getWordsFromString(x.path);
+              })
+            ),
+            function (x) {
+              return x;
+            }
+          );
+          
+          dataView.beginUpdate();
+          dataView.setItems(library);
+          dataView.endUpdate();
+        } catch (error) {
+          console.error('Error refreshing library:', error);
+          showNotification('Error refreshing library display', 'error');
+        }
+      }
 
       async function openConfigEditor() {
         if (configEditorOpen) {
