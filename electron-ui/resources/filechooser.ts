@@ -21,7 +21,7 @@ function fileChooser(
   for (let ci = 0; ci < columnDirs.length; ci++) {
     const dir = makePathFromDirList(columnDirs.slice(0, ci + 1));
     const highlight = columnDirs[ci + 1];
-    console.log(dir);
+    // console.log(dir);
     columns[ci] = newFileColumn(
       columnbox,
       dir,
@@ -48,7 +48,7 @@ function newFileColumn(
   const column = $('<div>').addClass('fileColumn').addClass('sunken').appendTo(parent);
 
   column.click(function(e) {
-    if (e.target == column.get(0)) {
+    if (e.target === column.get(0)) {
       // Column background clicked
     }
   });
@@ -57,29 +57,26 @@ function newFileColumn(
   let selected: FileInfo | undefined;
   
   getFilesInPath(dir, function(list: FileInfo[]) {
-    console.log(JSON.stringify(list));
+    // console.log(JSON.stringify(list));
     
-    for (let fi = 0; fi < list.length; fi++) {
-      (function(fi: number) {
-        const file = list[fi];
+    list.forEach((file) => {
+      const filediv = $('<div>').addClass('fileDiv').text(file.name).appendTo(column);
+      file.filediv = filediv;
+      
+      if (file.type === 'dir') {
+        filediv.addClass('fileDirectory');
+      } else if (file.type === 'file') {
+        filediv.addClass('fileFile');
+      } else if (file.type === 'app') {
+        filediv.addClass('fileApp');
+      }
 
-        const filediv = $('<div>').addClass('fileDiv').text(file.name).appendTo(column);
-        file.filediv = filediv;
-        
-        if (file.type === 'dir') {
-          filediv.addClass('fileDirectory');
-        } else if (file.type === 'file') {
-          filediv.addClass('fileFile');
-        } else if (file.type === 'app') {
-          filediv.addClass('fileApp');
-        }
-
-        if (file.name === highlight) {
-          filediv.addClass('fileSelected');
-          selected = file;
-        }
-        
-        const handler = function(e: JQuery.Event) {
+      if (file.name === highlight) {
+        filediv.addClass('fileSelected');
+        selected = file;
+      }
+      
+      const handler = function(e: JQuery.Event) {
           if (e.type === 'mouseup' || e.which !== 1) {
             columnDragging = false;
           }
@@ -124,8 +121,7 @@ function newFileColumn(
           }
         };
         filediv.on("mousedown mouseup mousemove", handler);
-      })(fi);
-    }
+    });
   });
 
   const resizer = $('<div>').addClass('fileColumnResizer');

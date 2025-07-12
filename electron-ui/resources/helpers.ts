@@ -1,5 +1,5 @@
 function quotemeta(str: string): string {
-  return (str + '').replace(/([\.\\\+\*\?\[\^\]\$\(\)])/g, '\\$1');
+  return str.replace(/([\.\\\+\*\?\[\^\]\$\(\)])/g, '\\$1');
 }
 
 function naturalSorter(as: string | number, bs: string | number): number {
@@ -35,14 +35,18 @@ function naturalSorter(as: string | number, bs: string | number): number {
 function displayFileSize(x: number): string {
   if (x <= 0) return '0';
   
+  // The 1.03 factor provides a small buffer to handle rounding
   const exp = Math.floor((Math.log(x * 1.03) / Math.log(2)) / 10);
   const div = Math.pow(1024, exp);
   let str = x / div;
   
+  const units = ['B', 'kB', 'MB', 'GB', 'TB'];
+  const unit = units[Math.min(exp, units.length - 1)];
+  
   if (str < 10) {
-    return str.toFixed(1) + ' ' + (['B', 'kB', 'MB', 'GB', 'TB'])[exp];
+    return str.toFixed(1) + ' ' + unit;
   } else {
-    return str.toFixed(0) + ' ' + (['B', 'kB', 'MB', 'GB', 'TB'])[exp];
+    return str.toFixed(0) + ' ' + unit;
   }
 }
 
@@ -51,20 +55,15 @@ function getWordsFromString(str: string): string[] {
   return matches || [];
 }
 
-const levenshtein = (function(min: typeof Math.min, split: boolean) {
+const levenshtein = (function(min: typeof Math.min) {
   // Levenshtein Algorithm Revisited - WebReflection
-  try {
-    split = !("0" as unknown as string[])[0];
-  } catch (i) {
-    split = true;
-  }
   
   return function(a: string, b: string): number {
     if (a === b) return 0;
     if (!a.length || !b.length) return b.length || a.length;
     
-    const aArr: string[] = split ? a.split("") : Array.from(a);
-    const bArr: string[] = split ? b.split("") : Array.from(b);
+    const aArr: string[] = Array.from(a);
+    const bArr: string[] = Array.from(b);
     
     const len1 = aArr.length + 1;
     const len2 = bArr.length + 1;
@@ -96,9 +95,8 @@ const levenshtein = (function(min: typeof Math.min, split: boolean) {
     
     return d[len1 - 1][len2 - 1];
   };
-})(Math.min, false);
+})(Math.min);
 
 function startsWith(a: string, b: string): boolean {
-  const re = new RegExp('^' + quotemeta(b), 'i');
-  return re.test(a);
+  return a.toLowerCase().startsWith(b.toLowerCase());
 }

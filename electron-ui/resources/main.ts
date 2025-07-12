@@ -12,12 +12,12 @@ let library: LibraryItem[] = [];
 let keyWordsToCount: { [key: string]: number } = {};
 let grid: Slick.Grid<LibraryItem>;
 let dataView: Slick.DataView<LibraryItem>;
-let resizeTimeout: number;
+// let resizeTimeout: number; // Unused variable
 let availableWidth: number;
 let availableHeight: number;
 let rowHeight = 15;
 let gridFontSize: string = "12px";
-let configEditorOpen = 0;
+let configEditorOpen = false;
 let searchStringToRegex: { [key: string]: RegExp } = {};
 
 const $window = $(window);
@@ -36,7 +36,10 @@ searchClear.click(function () {
 $("#searchBox").wrap(searchSpan).after(searchClear);
 
 function focusSearchBox() {
-  $("#searchBox").get(0).focus();
+  const searchBox = $("#searchBox").get(0);
+  if (searchBox) {
+    searchBox.focus();
+  }
 }
 
 $("#searchBox").blur(function () {
@@ -54,9 +57,11 @@ function shouldSearchBoxStayFocused() {
 }
 
 $("#searchBox").keydown(function (e) {
-  if (e.which == 38 || e.which == 40) {
+  if (e.which === 38 || e.which === 40) {
     e.preventDefault();
-    grid.getFocusSink().trigger(e);
+    if (grid) {
+      grid.getFocusSink().trigger(e);
+    }
   }
 });
 
@@ -134,7 +139,7 @@ function closestMatchInDictionary(word: string, keyWordsToCount: { [key: string]
     return startsWith(el, word);
   });
   if (matches.length > 0) {
-    if (matches.length == 1) {
+    if (matches.length === 1) {
       return matches[0];
     } else {
       return word;
@@ -227,7 +232,7 @@ function initSlickGrid() {
       field: "basename",
       sortable: true,
       formatter: function (row, cell, value, columnDef, dataContext) {
-        const doLogging = row == 0 ? 1 : 0;
+        const doLogging = row === 0;
         return calcSquishyHTML(
           value,
           gridFontSize,
@@ -454,7 +459,7 @@ async function openConfigEditor() {
   if (configEditorOpen) {
     return;
   } else {
-    configEditorOpen = 1;
+    configEditorOpen = true;
   }
   const resp = await fetch(apiBase + "getConfigSchemaJSON");
   const respText = await resp.text();
@@ -476,7 +481,7 @@ async function openConfigEditor() {
     close: function () {
       dialog.dialog("destroy");
       dialog.detach();
-      configEditorOpen = 0;
+      configEditorOpen = false;
 
       focusSearchBox();
     },
@@ -496,7 +501,7 @@ async function openConfigEditor() {
             apiBase + "saveConfig" + objectToQueryString(params)
           );
           const saveResultText = await saveResult.text();
-          if (saveResultText != "saved") {
+          if (saveResultText !== "saved") {
             onError();
           }
         })();

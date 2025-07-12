@@ -25,8 +25,8 @@ function kosherForm(schema: FormSchema, parent: JQuery): FormReclaimer {
 
   const reclaimers: { [key: string]: Reclaimer } = {};
 
-  for (const ki in schema.order) {
-    const key = schema.order[ki];
+  for (let i = 0; i < schema.order.length; i++) {
+    const key = schema.order[i];
 
     const row = $('<tr>').addClass('kosherPropertyRow').appendTo(table);
 
@@ -34,7 +34,8 @@ function kosherForm(schema: FormSchema, parent: JQuery): FormReclaimer {
 
     const iconbox = $('<td>').appendTo(row);
     if (props.icon) {
-      iconbox.append('<img src="' + props.icon + '">');
+      const img = $('<img>').attr('src', props.icon);
+      iconbox.append(img);
     }
     const label = $('<td>').text(props.title + ':').addClass('kosherPropertyLabel').appendTo(row);
 
@@ -68,14 +69,14 @@ function makeKosherPropertyEditor(
     input.val(String(def || ''));
     return function() {
       const val = input.val();
-      return parseInt(String(val)) || 0;
+      return parseInt(String(val), 10) || 0;
     };
   } else if (props.type === 'array') {
     const table = $('<table>').addClass('kosherForm').appendTo(editbox);
 
     const reclaimers: Reclaimer[] = [];
 
-    const defArray = def as PropertyValue[] || [];
+    const defArray = (def && Array.isArray(def)) ? def : [];
     for (let i = 0; i < defArray.length; i++) {
       reclaimers.push(makeKosherArrayRow(table, props, defArray[i], reclaimers));
     }
@@ -89,8 +90,8 @@ function makeKosherPropertyEditor(
     };
   }
   
-  // Return a no-op function for unsupported types
-  return function() { return null; };
+  // Return empty string for unsupported types
+  return function() { return ''; };
 }
 
 function makeKosherArrayRow(
@@ -102,7 +103,10 @@ function makeKosherArrayRow(
   const row = $('<tr>').appendTo(table);
   const innerEditbox = $('<td>').appendTo(row);
 
-  const reclaimer = makeKosherPropertyEditor(props.items!, def, innerEditbox);
+  if (!props.items) {
+    throw new Error('Array property must have items schema');
+  }
+  const reclaimer = makeKosherPropertyEditor(props.items, def, innerEditbox);
 
   const deleteCell = $('<td>').appendTo(row);
   const deleteButton = $('<button>').text('X').addClass('kosherDeleteButton').appendTo(deleteCell);
@@ -110,10 +114,9 @@ function makeKosherArrayRow(
   deleteButton.click(function() {
     row.detach();
 
-    for (let ri = 0; ri < reclaimers.length; ri++) {
-      if (reclaimers[ri] === reclaimer) {
-        reclaimers.splice(ri, 1);
-      }
+    const index = reclaimers.indexOf(reclaimer);
+    if (index !== -1) {
+      reclaimers.splice(index, 1);
     }
   });
 

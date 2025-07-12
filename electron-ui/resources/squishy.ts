@@ -36,7 +36,7 @@ let calcSquishyHTML = function(
   fontSize: string,
   avail: number,
   classes: string[],
-  doLogging?: number
+  doLogging?: boolean
 ): string {
   if (doLogging) {
     //console.log('avail = '+avail);
@@ -62,10 +62,9 @@ let calcSquishyHTML = function(
   const flattenCSS = function(obj: { [key: string]: string }): string {
     const styleArr: string[] = [];
     for (const key in obj) {
-      styleArr.push(key);
-      styleArr.push(':');
-      styleArr.push(obj[key]);
-      styleArr.push(';');
+      if (obj.hasOwnProperty(key)) {
+        styleArr.push(`${key}:${obj[key]};`);
+      }
     }
     return styleArr.join('');
   };
@@ -79,7 +78,7 @@ let calcSquishyHTML = function(
     purpose: string
   ): number {
     const cacheKey = function(text: string, classes: string[]): string {
-      return text;
+      return text + '|' + classes.join(',');
     };
     
     if (escape === undefined) {
@@ -132,7 +131,7 @@ let calcSquishyHTML = function(
       tester.lastTesterClasses = classes;
     }
     
-    if (text != tester.lastTesterText) {
+    if (text !== tester.lastTesterText) {
       if (escape) {
         tester.testerDiv.textContent = text;
       } else {
