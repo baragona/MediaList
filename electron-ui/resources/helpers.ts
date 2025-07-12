@@ -54,7 +54,7 @@ function getWordsFromString(str: string): string[] {
 const levenshtein = (function(min: typeof Math.min, split: boolean) {
   // Levenshtein Algorithm Revisited - WebReflection
   try {
-    split = !("0" as any)[0];
+    split = !("0" as unknown as string[])[0];
   } catch (i) {
     split = true;
   }
@@ -63,8 +63,8 @@ const levenshtein = (function(min: typeof Math.min, split: boolean) {
     if (a === b) return 0;
     if (!a.length || !b.length) return b.length || a.length;
     
-    let aArr: string[] = split ? a.split("") : a as any;
-    let bArr: string[] = split ? b.split("") : b as any;
+    const aArr: string[] = split ? a.split("") : Array.from(a);
+    const bArr: string[] = split ? b.split("") : Array.from(b);
     
     const len1 = aArr.length + 1;
     const len2 = bArr.length + 1;

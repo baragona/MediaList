@@ -160,4 +160,4 @@ function newFileDiv(): void {
 }
 
 // Export to global scope
-(window as any).fileChooser = fileChooser;
+window.fileChooser = fileChooser;

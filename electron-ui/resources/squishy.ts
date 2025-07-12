@@ -16,7 +16,7 @@ interface Tester {
   cache: TesterCache;
   testerDiv: HTMLDivElement;
   $div: JQuery<HTMLDivElement>;
-  lastTesterStyles?: any;
+  lastTesterStyles?: { [key: string]: string };
   lastTesterClasses?: string[];
   lastTesterText?: string;
 }
@@ -73,7 +73,7 @@ let calcSquishyHTML = function(
   const calculateWordDimensions = function(
     text: string,
     escape: boolean | undefined,
-    styles: any,
+    styles: { [key: string]: string },
     classes: string[],
     fontSize: string,
     purpose: string
@@ -90,12 +90,14 @@ let calcSquishyHTML = function(
 
     let tester = testers[testersKey];
     if (!tester) {
-      tester = {} as Tester;
-      tester.cache = {};
+      const div = document.createElement('div');
+      document.body.appendChild(div);
+      tester = {
+        cache: {},
+        testerDiv: div,
+        $div: $(div)
+      };
       testers[testersKey] = tester;
-      tester.testerDiv = document.createElement('div');
-      document.body.appendChild(tester.testerDiv);
-      tester.$div = $(tester.testerDiv);
     }
 
     if (purpose === 'analyze') {
@@ -220,8 +222,8 @@ let calcSquishyHTML = function(
 };
 
 // Memoize the function
-calcSquishyHTML = (window as any).memoize(calcSquishyHTML, { primitive: true });
-(window as any).calcSquishyHTML = calcSquishyHTML;
+calcSquishyHTML = window.memoize(calcSquishyHTML, { primitive: true });
+window.calcSquishyHTML = calcSquishyHTML;
 
 function forceFitSquishy(
   Node: Node,
@@ -288,4 +290,4 @@ function forceFitSquishy(
 }
 
 // Export to global scope
-(window as any).forceFitSquishy = forceFitSquishy;
+window.forceFitSquishy = forceFitSquishy;

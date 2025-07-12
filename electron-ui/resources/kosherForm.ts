@@ -1,7 +1,10 @@
+type PropertyValue = string | number | PropertyValue[];
+type FormValues = { [key: string]: PropertyValue };
+
 interface PropertySchema {
   type: 'string' | 'number' | 'array';
   title: string;
-  default?: any;
+  default?: PropertyValue;
   icon?: string;
   items?: PropertySchema;
 }
@@ -13,9 +16,10 @@ interface FormSchema {
   };
 }
 
-type Reclaimer = () => any;
+type Reclaimer = () => PropertyValue;
+type FormReclaimer = () => FormValues;
 
-function kosherForm(schema: FormSchema, parent: JQuery): Reclaimer {
+function kosherForm(schema: FormSchema, parent: JQuery): FormReclaimer {
   const table = $('<table>').appendTo(parent);
   table.addClass('kosherForm');
 
@@ -40,7 +44,7 @@ function kosherForm(schema: FormSchema, parent: JQuery): Reclaimer {
   }
 
   return function() {
-    const output: { [key: string]: any } = {};
+    const output: FormValues = {};
     for (const key in reclaimers) {
       output[key] = reclaimers[key]();
     }
@@ -50,28 +54,30 @@ function kosherForm(schema: FormSchema, parent: JQuery): Reclaimer {
 
 function makeKosherPropertyEditor(
   props: PropertySchema,
-  def: any,
+  def: PropertyValue | undefined,
   editbox: JQuery
 ): Reclaimer {
   if (props.type === 'string') {
     const input = $('<input type="text">').appendTo(editbox);
-    input.val(def);
+    input.val(def as string || '');
     return function() {
-      return input.val();
+      return input.val() || '';
     };
   } else if (props.type === 'number') {
     const input = $('<input type="text">').appendTo(editbox);
-    input.val(def);
+    input.val(String(def || ''));
     return function() {
-      return parseInt(input.val() as string);
+      const val = input.val();
+      return parseInt(String(val)) || 0;
     };
   } else if (props.type === 'array') {
     const table = $('<table>').addClass('kosherForm').appendTo(editbox);
 
     const reclaimers: Reclaimer[] = [];
 
-    for (const i in def) {
-      reclaimers.push(makeKosherArrayRow(table, props, def[i], reclaimers));
+    const defArray = def as PropertyValue[] || [];
+    for (let i = 0; i < defArray.length; i++) {
+      reclaimers.push(makeKosherArrayRow(table, props, defArray[i], reclaimers));
     }
     const addButton = $('<button>').text('Add').addClass('kosherAddButton').appendTo(editbox);
 
@@ -90,7 +96,7 @@ function makeKosherPropertyEditor(
 function makeKosherArrayRow(
   table: JQuery,
   props: PropertySchema,
-  def: any,
+  def: PropertyValue | undefined,
   reclaimers: Reclaimer[]
 ): Reclaimer {
   const row = $('<tr>').appendTo(table);
@@ -115,4 +121,4 @@ function makeKosherArrayRow(
 }
 
 // Export to global scope
-(window as any).kosherForm = kosherForm;
+window.kosherForm = kosherForm;

@@ -1,13 +1,14 @@
 /// <reference path="types/globals.d.ts" />
 /// <reference path="types/slickgrid.d.ts" />
 /// <reference path="types/custom-libs.d.ts" />
+/// <reference path="types/window.d.ts" />
 
 // Initialize variables
 const apiBase = "http://localhost:43590/";
 let library: LibraryItem[] = [];
 let keyWordsToCount: { [key: string]: number } = {};
-let grid: any; // SlickGrid instance
-let dataView: any; // SlickGrid DataView
+let grid: Slick.Grid<LibraryItem>;
+let dataView: Slick.DataView<LibraryItem>;
 let resizeTimeout: number;
 let availableWidth: number;
 let availableHeight: number;
@@ -85,9 +86,9 @@ $("#scanFilesButton").click(async function() {
     } else {
       showNotification(result.error || 'Scan failed', 'error');
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('Scan error:', error);
-    showNotification('Error during scan: ' + error.message, 'error');
+    showNotification('Error during scan: ' + (error as Error).message, 'error');
   } finally {
     // Re-enable button and restore original text
     button.prop('disabled', false);
@@ -100,7 +101,7 @@ $("#zoomSlider").slider({
   min: 10,
   max: 25,
   step: 0.5,
-  slide: _.throttle(function (event: any, ui: any) {
+  slide: _.throttle(function (event: Event, ui: { value: number }) {
     setRowSize(ui.value);
   }, 30),
 });
@@ -161,7 +162,7 @@ function setRowSize(newsize: number) {
 }
 
 // Initialize DataView
-dataView = new (window as any).Slick.Data.DataView();
+dataView = new window.Slick.Data.DataView<LibraryItem>();
 dataView.onRowCountChanged.subscribe(function (e, args) {
   grid.updateRowCount();
   grid.render();
@@ -215,8 +216,8 @@ dataView.setFilter(function (item: LibraryItem) {
 function initSlickGrid() {
   $("#grid").empty();
   $("#grid").removeClass();
-  grid = undefined as any;
-  const columns: any[] = [
+  grid = undefined!;
+  const columns: Slick.Column<LibraryItem>[] = [
     {
       id: "name",
       name: "Name",
@@ -244,7 +245,7 @@ function initSlickGrid() {
     },
   ];
 
-  const options: any = {
+  const options: Slick.GridOptions<LibraryItem> = {
     enableCellNavigation: true,
     enableColumnReorder: false,
     forceFitColumns: true,
@@ -256,13 +257,13 @@ function initSlickGrid() {
     syncColumnCellResize: true,
   };
 
-  grid = new (window as any).Slick.Grid("#grid", dataView, columns, options);
+  grid = new window.Slick.Grid("#grid", dataView, columns, options);
   grid.setSelectionModel(
-    new (window as any).Slick.RowSelectionModel({ dragToMultiSelect: true })
+    new window.Slick.RowSelectionModel({ dragToMultiSelect: true })
   );
 
   grid.onDblClick.subscribe(function (e, args) {
-    const cell = grid.getCellFromEvent(e as any);
+    const cell = grid.getCellFromEvent(e);
     const fileId = dataView.getItem(cell.row).id;
     fetch(apiBase + "openFile" + objectToQueryString({ fileId: fileId }));
   });
@@ -272,7 +273,8 @@ function initSlickGrid() {
 
   grid.onSort.subscribe(function (e, args) {
     const comparer = function (a: LibraryItem, b: LibraryItem) {
-      return naturalSorter(a[args.sortCol.field as keyof LibraryItem], b[args.sortCol.field as keyof LibraryItem]);
+      const field = args.sortCol.field as keyof LibraryItem;
+      return naturalSorter(String(a[field]), String(b[field]));
     };
 
     // Delegate the sorting to DataView.
@@ -382,7 +384,7 @@ $(document).on('drop', async function(e) {
   
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
-    const filePath = (file as any).path;
+    const filePath = (file as FileWithPath).path;
     
     try {
       const response = await fetch(apiBase + 'addFile', {

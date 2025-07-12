@@ -20,8 +20,20 @@ interface MediaListConfig {
   MaxSearchDepth: number;
 }
 
-// Underscore.js
-declare const _: any;
+// Underscore.js - minimal type definitions for what we use
+interface UnderscoreStatic {
+  isEqual(a: any, b: any): boolean;
+  each<T>(list: T[], iteratee: (value: T, index: number, list: T[]) => void): void;
+  escape(str: string): string;
+  keys(object: any): string[];
+  filter<T>(list: T[], predicate: (value: T) => boolean): T[];
+  min<T>(list: T[], iteratee?: (value: T) => number): T;
+  max(list: number[]): number;
+  countBy<T>(list: T[], iteratee: (value: T) => string): { [key: string]: number };
+  flatten<T>(array: T[][]): T[];
+  throttle<T extends Function>(func: T, wait: number): T;
+}
+declare const _: UnderscoreStatic;
 
 // Utility functions
 declare function quotemeta(str: string): string;
