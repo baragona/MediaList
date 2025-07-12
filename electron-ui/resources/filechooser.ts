@@ -158,6 +158,3 @@ function makePathFromDirList(dirs: string[]): string {
 function newFileDiv(): void {
   // Not implemented in original
 }
-
-// Export to global scope
-window.fileChooser = fileChooser;

@@ -119,6 +119,3 @@ function makeKosherArrayRow(
 
   return reclaimer;
 }
-
-// Export to global scope
-window.kosherForm = kosherForm;

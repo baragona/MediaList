@@ -221,9 +221,10 @@ let calcSquishyHTML = function(
   return html;
 };
 
-// Memoize the function
-calcSquishyHTML = window.memoize(calcSquishyHTML, { primitive: true });
-window.calcSquishyHTML = calcSquishyHTML;
+// Create memoized version
+if (typeof window !== 'undefined' && (window as any).memoize) {
+  calcSquishyHTML = (window as any).memoize(calcSquishyHTML, { primitive: true });
+}
 
 function forceFitSquishy(
   Node: Node,
@@ -288,6 +289,3 @@ function forceFitSquishy(
     SquishyCache.push(Node);
   }
 }
-
-// Export to global scope
-window.forceFitSquishy = forceFitSquishy;

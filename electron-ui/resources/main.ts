@@ -3,6 +3,9 @@
 /// <reference path="types/custom-libs.d.ts" />
 /// <reference path="types/window.d.ts" />
 
+// Declare Slick as a global to avoid window access
+declare const Slick: typeof window.Slick;
+
 // Initialize variables
 const apiBase = "http://localhost:43590/";
 let library: LibraryItem[] = [];
@@ -162,7 +165,7 @@ function setRowSize(newsize: number) {
 }
 
 // Initialize DataView
-dataView = new window.Slick.Data.DataView<LibraryItem>();
+dataView = new Slick.Data.DataView();
 dataView.onRowCountChanged.subscribe(function (e, args) {
   grid.updateRowCount();
   grid.render();
@@ -257,9 +260,9 @@ function initSlickGrid() {
     syncColumnCellResize: true,
   };
 
-  grid = new window.Slick.Grid("#grid", dataView, columns, options);
+  grid = new Slick.Grid("#grid", dataView, columns, options);
   grid.setSelectionModel(
-    new window.Slick.RowSelectionModel({ dragToMultiSelect: true })
+    new Slick.RowSelectionModel({ dragToMultiSelect: true })
   );
 
   grid.onDblClick.subscribe(function (e, args) {
