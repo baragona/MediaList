@@ -221,8 +221,8 @@ let calcSquishyHTML = function(
 };
 
 // Create memoized version
-if (typeof window !== 'undefined' && (window as any).memoize) {
-  calcSquishyHTML = (window as any).memoize(calcSquishyHTML, { primitive: true });
+if (typeof window !== 'undefined' && window.memoize) {
+  calcSquishyHTML = window.memoize(calcSquishyHTML, { primitive: true });
 }
 
 function forceFitSquishy(

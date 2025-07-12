@@ -3,6 +3,7 @@ import { spawn } from "child_process";
 import express from "express";
 import { getConfig, getConfigSchemaJSON, saveConfig } from "./ConfigLoader";
 import { connect } from "./dbaccess";
+import { LibraryRow } from "./types";
 const app = express();
 app.use(bodyParser.json());
 
@@ -36,7 +37,7 @@ app.use(function (req, res, next) {
 
 app.get("/getLibrary", function (req, res) {
   const con = connect();
-  const rows = con.prepare("select * from library").all();
+  const rows = con.prepare("select * from library").all() as LibraryRow[];
   res.send(JSON.stringify(rows));
 });
 
@@ -44,9 +45,16 @@ app.get("/openFile", function (req, res) {
   const argObj = getArgsFromQueryString(req);
   const fileId = argObj.fileId;
   const con = connect();
-  const path = con
+  const result = con
     .prepare("select path from library where id = ?")
-    .get(fileId).path;
+    .get(fileId) as { path: string } | undefined;
+  
+  if (!result) {
+    res.status(404).send("File not found");
+    return;
+  }
+  
+  const path = result.path;
 
   const ls = spawn("open", ["-a", getConfig().openVideosWith, path]);
   ls.stdout.on("data", (data: string) => {

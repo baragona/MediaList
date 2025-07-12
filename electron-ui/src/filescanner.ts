@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { getConfig } from "./ConfigLoader";
 import { connect } from "./dbaccess";
+// import { LibraryRow } from "./types"; // Only used in commented code
 
 const config = getConfig();
 const library_root = config["LibraryRoots"][0];
@@ -29,16 +30,15 @@ export function createLibrary() {
   con.prepare(" create index added on library (added)").run();
 }
 
-function dumpLibrary() {
-  const con = connect();
-
-  const rows = con.prepare("select * from library").all();
-
-  for (const row of rows) {
-    console.log(row);
-  }
-  console.log("End dump");
-}
+// Unused function - kept for debugging
+// function _dumpLibrary() {
+//   const con = connect();
+//   const rows = con.prepare("select * from library").all() as LibraryRow[];
+//   for (const row of rows) {
+//     console.log(row);
+//   }
+//   console.log("End dump");
+// }
 
 let scanProgress = { found: 0, currentFile: '' };
 
@@ -61,7 +61,7 @@ function foundMediaFile(path: string) {
   const fff = "pending";
   
   // Check if file already exists
-  const existing = con.prepare("SELECT id FROM library WHERE path = ?").get(realpath);
+  const existing = con.prepare("SELECT id FROM library WHERE path = ?").get(realpath) as { id: number } | undefined;
   
   if (!existing) {
     con
@@ -91,13 +91,13 @@ export function listdir(root: string, depth: number, parentCounts: [number, numb
   var babies: string[];
   try {
     babies = fs.readdirSync(root);
-  } catch (error) {
+  } catch {
     console.log("couldn't list contents for " + root);
     return;
   }
   for (const files of babies) {
     const thispath = path.join(root, files);
-    const pathMinusExt = thispath.split(".").slice(0, -1).join(".");
+    // const pathMinusExt = thispath.split(".").slice(0, -1).join(".");
     const fileExtension = thispath.split(".").pop();
     const fileName = thispath.split("/").pop();
     if (fileName.startsWith(".")) {

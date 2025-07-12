@@ -19,6 +19,19 @@ type ConfigType = {
   MinMovieSize: number;
 };
 
+interface SchemaProperty {
+  default: string | number | string[];
+  type: "string" | "number" | "array";
+  icon?: string;
+  items?: { type: "string" };
+  title?: string;
+}
+
+interface Schema {
+  order: SchemaKey[];
+  properties: Record<SchemaKey, SchemaProperty>;
+}
+
 const schemaKeys = [
   "LibraryRoots",
   "openVideosWith",
@@ -29,7 +42,7 @@ const schemaKeys = [
   "MinAudioSize",
 ] as SchemaKey[];
 
-const schema = {
+const schema: Schema = {
   order: schemaKeys,
   properties: {
     openVideosWith: {
@@ -94,7 +107,7 @@ export function getConfigSchemaJSON() {
   const sch = Object.assign({}, schema);
   for (const key of schemaKeys) {
     const it = sch.properties[key];
-    (it as any).title = keyNameToNiceName(key); //todo this is naughty
+    it.title = keyNameToNiceName(key);
     it.default = current[key];
   }
   return JSON.stringify(sch, null, 4);
@@ -113,7 +126,7 @@ export function getConfig() {
 
     const loaded_cfg = JSON.parse(file) as ConfigType;
     Object.assign(cfg, loaded_cfg);
-  } catch (e) {
+  } catch {
     throw "Configuration JSON file has some errors.";
   }
 

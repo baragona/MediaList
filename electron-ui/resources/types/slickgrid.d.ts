@@ -18,7 +18,7 @@ declare namespace Slick {
     name: string;
     field: string;
     sortable?: boolean;
-    formatter?: (row: number, cell: number, value: any, columnDef: Column<T>, dataContext: T) => string;
+    formatter?: (row: number, cell: number, value: unknown, columnDef: Column<T>, dataContext: T) => string;
     width?: number;
   }
 
@@ -34,7 +34,7 @@ declare namespace Slick {
     refresh(): void;
     sort(comparer: (a: T, b: T) => number, ascending: boolean): void;
     getItem(index: number): T;
-    onRowCountChanged: Event<any>;
+    onRowCountChanged: Event<unknown>;
     onRowsChanged: Event<{ rows: number[] }>;
   }
 
@@ -52,13 +52,13 @@ declare namespace Slick {
     getCellFromEvent(e: JQuery.Event): { row: number; cell: number };
     setSelectionModel(model: RowSelectionModel<T>): void;
     onSort: Event<{ sortCol: Column<T>; sortAsc: boolean; multiColumnSort: boolean }>;
-    onDblClick: Event<any>;
-    onScroll: Event<any>;
-    onColumnsResized: Event<any>;
+    onDblClick: Event<unknown>;
+    onScroll: Event<unknown>;
+    onColumnsResized: Event<unknown>;
   }
 
   interface Event<T> {
-    subscribe(handler: (e: any, args: T) => void): void;
-    unsubscribe(handler: (e: any, args: T) => void): void;
+    subscribe(handler: (e: unknown, args: T) => void): void;
+    unsubscribe(handler: (e: unknown, args: T) => void): void;
   }
 }

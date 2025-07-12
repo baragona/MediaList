@@ -22,10 +22,10 @@ interface MediaListConfig {
 
 // Underscore.js - minimal type definitions for what we use
 interface UnderscoreStatic {
-  isEqual(a: any, b: any): boolean;
+  isEqual(a: unknown, b: unknown): boolean;
   each<T>(list: T[], iteratee: (value: T, index: number, list: T[]) => void): void;
   escape(str: string): string;
-  keys(object: any): string[];
+  keys(object: object): string[];
   filter<T>(list: T[], predicate: (value: T) => boolean): T[];
   min<T>(list: T[], iteratee?: (value: T) => number): T;
   max(list: number[]): number;
@@ -44,6 +44,6 @@ declare function getWordsFromString(str: string): string[];
 declare function startsWith(str: string, prefix: string): boolean;
 declare function closestMatchInDictionary(word: string, dict: { [key: string]: number }, maxErrors: number): string;
 // declare function calcSquishyHTML(text: string, fontSize: string, width: number, classes: string[], doLogging?: number): string; // Defined in squishy.ts
-declare function objectToQueryString(obj: { [key: string]: any }): string;
+declare function objectToQueryString(obj: { [key: string]: string | number | boolean }): string;
 declare function showNotification(message: string, type?: 'info' | 'success' | 'error'): void;
 declare function refreshLibrary(): Promise<void>;

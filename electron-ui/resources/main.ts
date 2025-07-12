@@ -126,8 +126,12 @@ const calculateSize = function () {
 };
 $window.on("resize", calculateSize);
 
-function objectToQueryString(obj: { [key: string]: any }): string {
-  return "?" + new URLSearchParams(obj).toString();
+function objectToQueryString(obj: { [key: string]: string | number | boolean }): string {
+  const params = new URLSearchParams();
+  for (const key in obj) {
+    params.append(key, String(obj[key]));
+  }
+  return "?" + params.toString();
 }
 
 function closestMatchInDictionary(word: string, keyWordsToCount: { [key: string]: number }, maxErrors: number): string {
@@ -196,7 +200,7 @@ dataView.setFilter(function (item: LibraryItem) {
 
   current = current.replace(/[^\w\d]+/gi, " ");
 
-  const search = $("#searchBox").val() as string;
+  const search = String($("#searchBox").val() || "");
   let re: RegExp;
   if (searchStringToRegex[search]) {
     re = searchStringToRegex[search];
@@ -234,7 +238,7 @@ function initSlickGrid() {
       formatter: function (row, cell, value, columnDef, dataContext) {
         const doLogging = row === 0;
         return calcSquishyHTML(
-          value,
+          String(value),
           gridFontSize,
           columnDef.width!,
           ["ui-widget", "slick-cell"],
@@ -248,7 +252,7 @@ function initSlickGrid() {
       field: "size",
       sortable: true,
       formatter: function (row, cell, value, columnDef, dataContext) {
-        return displayFileSize(value);
+        return displayFileSize(Number(value) || 0);
       },
     },
   ];
@@ -271,7 +275,7 @@ function initSlickGrid() {
   );
 
   grid.onDblClick.subscribe(function (e, args) {
-    const cell = grid.getCellFromEvent(e);
+    const cell = grid.getCellFromEvent(e as JQuery.Event);
     const fileId = dataView.getItem(cell.row).id;
     fetch(apiBase + "openFile" + objectToQueryString({ fileId: fileId }));
   });
