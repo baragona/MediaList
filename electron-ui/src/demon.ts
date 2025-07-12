@@ -147,6 +147,53 @@ app.post("/addFile", function (req, res) {
   }
 });
 
+app.post("/scanFiles", async function (req, res) {
+  const { listdir, resetScanProgress, getScanProgress } = require('./filescanner');
+  const { getConfig } = require('./ConfigLoader');
+  
+  try {
+    const config = getConfig();
+    
+    // Reset progress tracking
+    resetScanProgress();
+    
+    // Start scanning all library roots
+    let scanPromise = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        try {
+          for (const root of config.LibraryRoots) {
+            try {
+              listdir(root, 1, [0, 0]);
+            } catch (err) {
+              console.error(`Error scanning root ${root}:`, err);
+            }
+          }
+          const finalProgress = getScanProgress();
+          resolve(finalProgress);
+        } catch (err) {
+          reject(err);
+        }
+      }, 0);
+    });
+    
+    // Wait for scan to complete
+    const result = await scanPromise as { found: number, currentFile: string };
+    
+    res.json({ 
+      success: true, 
+      found: result.found,
+      message: `Scan completed. Found ${result.found} new files.`
+    });
+    
+  } catch (error) {
+    console.error('Scan error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Scan failed'
+    });
+  }
+});
+
 export function startDaemon() {
   app.listen(43590, function () {
     console.log("listening on port 43590");

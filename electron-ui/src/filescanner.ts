@@ -9,12 +9,12 @@ const movie_filetypes = config["VideoFileExtensions"];
 const movie_minsize = config["MinMovieSize"];
 const max_search_depth = config["MaxSearchDepth"];
 
-function dropLibrary() {
+export function dropLibrary() {
   const con = connect();
   con.prepare("Drop table if exists library").run();
 }
 
-function createLibrary() {
+export function createLibrary() {
   const con = connect();
 
   con
@@ -40,6 +40,16 @@ function dumpLibrary() {
   console.log("End dump");
 }
 
+let scanProgress = { found: 0, currentFile: '' };
+
+export function getScanProgress() {
+  return scanProgress;
+}
+
+export function resetScanProgress() {
+  scanProgress = { found: 0, currentFile: '' };
+}
+
 function foundMediaFile(path: string) {
   const con = connect();
 
@@ -49,12 +59,22 @@ function foundMediaFile(path: string) {
   const modified = fs.statSync(path).mtime.getTime();
   const added = Date.now();
   const fff = "pending";
-  con
-    .prepare(
-      "insert or ignore into library (path,basename,size,modified,added,fff) values (?,?,?,?,?,?)"
-    )
-    .run(realpath, basename, size, modified, added, fff);
-  console.log("inserted");
+  
+  // Check if file already exists
+  const existing = con.prepare("SELECT id FROM library WHERE path = ?").get(realpath);
+  
+  if (!existing) {
+    con
+      .prepare(
+        "insert into library (path,basename,size,modified,added,fff) values (?,?,?,?,?,?)"
+      )
+      .run(realpath, basename, size, modified, added, fff);
+    console.log("inserted");
+    scanProgress.found++;
+  } else {
+    console.log("already exists:", realpath);
+  }
+  scanProgress.currentFile = path;
 }
 
 function isTooBoring(counts: [number, number]) {
@@ -64,7 +84,7 @@ function isTooBoring(counts: [number, number]) {
   return false;
 }
 
-function listdir(root: string, depth: number, parentCounts: [number, number]) {
+export function listdir(root: string, depth: number, parentCounts: [number, number]) {
   let nInteresting = 0;
   let nBoring = 0;
   let subdirs: string[] = [];

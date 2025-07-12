@@ -33,6 +33,9 @@
     <button id="editConfigButton" style="vertical-align: middle">
       <img src="win95icons/Icon_22-0.png" />
     </button>
+    <button id="scanFilesButton" style="vertical-align: middle; margin-left: 5px">
+      <img src="win95icons/Icon_28-0.png" style="width: 16px; height: 16px" /> Scan
+    </button>
     <div id="notification" style="display: none; position: fixed; top: 10px; right: 10px; padding: 10px; border-radius: 4px; z-index: 1000; min-width: 200px; text-align: center;"></div>
     <div id="grid" style="border: 1px solid black"></div>
 
@@ -73,6 +76,43 @@
       });
 
       $("#editConfigButton").click(openConfigEditor);
+      
+      $("#scanFilesButton").click(async function() {
+        const button = $(this);
+        const originalText = button.html();
+        
+        // Disable button and show scanning state
+        button.prop('disabled', true);
+        button.html('<img src="win95icons/Icon_28-0.png" style="width: 16px; height: 16px" /> Scanning...');
+        
+        showNotification('Starting file scan...', 'info');
+        
+        try {
+          const response = await fetch(apiBase + 'scanFiles', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            showNotification(result.message, 'success');
+            // Refresh the library display
+            await refreshLibrary();
+          } else {
+            showNotification(result.error || 'Scan failed', 'error');
+          }
+        } catch (error) {
+          console.error('Scan error:', error);
+          showNotification('Error during scan: ' + error.message, 'error');
+        } finally {
+          // Re-enable button and restore original text
+          button.prop('disabled', false);
+          button.html(originalText);
+        }
+      });
 
       $("#zoomSlider").slider({
         value: 15,
