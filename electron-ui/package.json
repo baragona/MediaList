@@ -2,8 +2,10 @@
   "name": "electron-quick-start",
   "version": "1.0.0",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run build:frontend",
+    "build:frontend": "tsc -p tsconfig.frontend.json",
     "watch": "tsc -w",
+    "watch:frontend": "tsc -w -p tsconfig.frontend.json",
     "lint": "eslint -c .eslintrc --ext .ts ./src",
     "start": "npm run build && electron ./dist/main.js"
   },
@@ -19,6 +21,8 @@
   "author": "GitHub",
   "license": "CC0-1.0",
   "devDependencies": {
+    "@types/jquery": "^3.5.32",
+    "@types/jqueryui": "^1.12.24",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "electron": "^16.0.2",
