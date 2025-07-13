@@ -2,7 +2,6 @@ import fs from "fs";
 import path from "path";
 import { getConfig } from "./ConfigLoader";
 import { connect } from "./dbaccess";
-// import { LibraryRow } from "./types"; // Only used in commented code
 
 const config = getConfig();
 const library_root = config["LibraryRoots"][0];
@@ -10,12 +9,12 @@ const movie_filetypes = config["VideoFileExtensions"];
 const movie_minsize = config["MinMovieSize"];
 const max_search_depth = config["MaxSearchDepth"];
 
-export function dropLibrary() {
+function dropLibrary() {
   const con = connect();
   con.prepare("Drop table if exists library").run();
 }
 
-export function createLibrary() {
+function createLibrary() {
   const con = connect();
 
   con
@@ -30,15 +29,6 @@ export function createLibrary() {
   con.prepare(" create index added on library (added)").run();
 }
 
-// Unused function - kept for debugging
-// function _dumpLibrary() {
-//   const con = connect();
-//   const rows = con.prepare("select * from library").all() as LibraryRow[];
-//   for (const row of rows) {
-//     console.log(row);
-//   }
-//   console.log("End dump");
-// }
 
 let scanProgress = { found: 0, currentFile: '' };
 
@@ -78,7 +68,7 @@ function foundMediaFile(path: string) {
 }
 
 function isTooBoring(counts: [number, number]) {
-  if (counts[0] == 0 && counts[1] > 5) {
+  if (counts[0] === 0 && counts[1] > 5) {
     return true;
   }
   return false;
@@ -97,7 +87,6 @@ export function listdir(root: string, depth: number, parentCounts: [number, numb
   }
   for (const files of babies) {
     const thispath = path.join(root, files);
-    // const pathMinusExt = thispath.split(".").slice(0, -1).join(".");
     const fileExtension = thispath.split(".").pop();
     const fileName = thispath.split("/").pop();
     if (fileName.startsWith(".")) {
@@ -114,7 +103,7 @@ export function listdir(root: string, depth: number, parentCounts: [number, numb
     } else if (fs.lstatSync(thispath).isFile()) {
       const size = fs.statSync(thispath).size;
       if (size < movie_minsize) {
-        // print "Too small, skipping "
+        // Too small, skipping
         nBoring += 1;
         continue;
       }
@@ -128,12 +117,10 @@ export function listdir(root: string, depth: number, parentCounts: [number, numb
     }
   }
   // now look at all the subdirs
-  // print subdirs
   for (const dir of subdirs) {
-    // if the parent was really boring, and this directory is boring too, then dont look any deeper
+    // if the parent was really boring, and this directory is boring too, then don't look any deeper
     if (isTooBoring(parentCounts) && isTooBoring([nInteresting, nBoring])) {
-      // print dir
-      // print "the parent was too boring to bother looking any deeper"
+      // the parent was too boring to bother looking any deeper
       continue;
     }
 
@@ -147,10 +134,8 @@ export function listdir(root: string, depth: number, parentCounts: [number, numb
 }
 
 if (require.main === module) {
-  //dumpLibrary()
   dropLibrary();
   createLibrary();
 
-  //process.chdir(library_root);
   listdir(library_root, 1, [0, 0]);
 }

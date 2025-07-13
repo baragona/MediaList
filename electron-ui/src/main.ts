@@ -11,17 +11,15 @@ function createWindow() {
     width: 800,
     height: 600,
     title: "MediaList",
-
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
-    },
+      // No preload script needed
+      contextIsolation: true,
+      nodeIntegration: false
+    }
   });
 
   // and load the index.html of the app.
   mainWindow.loadFile("../resources/index.html");
-
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
 }
 
 // This method will be called when Electron has finished
