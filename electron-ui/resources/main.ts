@@ -2,13 +2,18 @@
 /// <reference path="types/slickgrid.d.ts" />
 /// <reference path="types/custom-libs.d.ts" />
 /// <reference path="types/window.d.ts" />
+/// <reference path="types/electron-api.d.ts" />
 
 // Declare Slick as a global to avoid window access
 declare const Slick: typeof window.Slick;
 
 // Initialize variables
-const apiBase = "http://localhost:43590/";
 let library: LibraryItem[] = [];
+
+// Create a callback-based wrapper for getFilesInPath
+const getFilesInPathCallback: GetFilesInPath = (path: string, callback: GetFilesCallback) => {
+  window.electronAPI.getFilesInPath(path).then(callback).catch(() => callback([]));
+};
 let keyWordsToCount: { [key: string]: number } = {};
 let grid: Slick.Grid<LibraryItem>;
 let dataView: Slick.DataView<LibraryItem>;
@@ -78,14 +83,7 @@ $("#scanFilesButton").click(async function() {
   showNotification('Starting file scan...', 'info');
   
   try {
-    const response = await fetch(apiBase + 'scanFiles', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-    
-    const result = await response.json();
+    const result = await window.electronAPI.scanFiles();
     
     if (result.success) {
       showNotification(result.message, 'success');
@@ -126,13 +124,8 @@ const calculateSize = function () {
 };
 $window.on("resize", calculateSize);
 
-function objectToQueryString(obj: { [key: string]: string | number | boolean }): string {
-  const params = new URLSearchParams();
-  for (const key in obj) {
-    params.append(key, String(obj[key]));
-  }
-  return "?" + params.toString();
-}
+// No longer needed with IPC
+// function objectToQueryString(obj: { [key: string]: string | number | boolean }): string
 
 function closestMatchInDictionary(word: string, keyWordsToCount: { [key: string]: number }, maxErrors: number): string {
   if (keyWordsToCount[word]) {
@@ -277,7 +270,7 @@ function initSlickGrid() {
   grid.onDblClick.subscribe(function (e, args) {
     const cell = grid.getCellFromEvent(e as JQuery.Event);
     const fileId = dataView.getItem(cell.row).id;
-    fetch(apiBase + "openFile" + objectToQueryString({ fileId: fileId }));
+    window.electronAPI.openFile(fileId);
   });
 
   grid.init();
@@ -304,8 +297,7 @@ setRowSize(rowHeight);
 
 // Load library data
 (async function () {
-  const libraryResult = await fetch(apiBase + "getLibrary");
-  library = await libraryResult.json();
+  library = await window.electronAPI.getLibrary();
   keyWordsToCount = _.countBy(
     _.flatten(
       library.map(function (x) {
@@ -396,18 +388,18 @@ $(document).on('drop', async function(e) {
   
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
-    const filePath = (file as FileWithPath).path;
     
     try {
-      const response = await fetch(apiBase + 'addFile', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ filePath: filePath })
-      });
+      // Use the modern webUtils.getPathForFile() API exposed through preload
+      const filePath = window.electronAPI.getPathForFile(file);
       
-      const result = await response.json();
+      if (!filePath) {
+        errorCount++;
+        console.error(`No path available for ${file.name}`);
+        continue;
+      }
+      
+      const result = await window.electronAPI.addFile(filePath);
       
       if (result.success) {
         successCount++;
@@ -437,8 +429,7 @@ $(document).on('drop', async function(e) {
 // Function to refresh the library display
 async function refreshLibrary() {
   try {
-    const libraryResult = await fetch(apiBase + "getLibrary");
-    library = await libraryResult.json();
+    library = await window.electronAPI.getLibrary();
     keyWordsToCount = _.countBy(
       _.flatten(
         library.map(function (x) {
@@ -465,9 +456,7 @@ async function openConfigEditor() {
   } else {
     configEditorOpen = true;
   }
-  const resp = await fetch(apiBase + "getConfigSchemaJSON");
-  const respText = await resp.text();
-  const json = JSON.parse(respText);
+  const json = JSON.parse(await window.electronAPI.getConfigSchemaJSON());
   const dialog = $('<div  title="Configuration">');
   const jsonform = $("<div >");
   dialog.append(jsonform);
@@ -500,11 +489,7 @@ async function openConfigEditor() {
             alert("BAD");
           };
 
-          const params = { newConfigJSON: json };
-          const saveResult = await fetch(
-            apiBase + "saveConfig" + objectToQueryString(params)
-          );
-          const saveResultText = await saveResult.text();
+          const saveResultText = await window.electronAPI.saveConfig(json);
           if (saveResultText !== "saved") {
             onError();
           }

@@ -19,8 +19,3 @@ interface Window {
   forceFitSquishy: typeof forceFitSquishy;
   fileChooser: typeof fileChooser;
 }
-
-// File interface for drag and drop
-interface FileWithPath extends File {
-  path: string;
-}
