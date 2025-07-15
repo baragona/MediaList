@@ -1,0 +1,153 @@
+.config-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.config-dialog-rnd {
+  z-index: 2001;
+}
+
+/* Style the resize handles to match Win95 */
+.config-dialog-rnd .react-resizable-handle {
+  background-color: transparent !important;
+}
+
+.config-dialog-rnd .react-resizable-handle-se {
+  bottom: 0;
+  right: 0;
+  cursor: nwse-resize;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.config-dialog-rnd .react-resizable-handle-se::after {
+  content: '';
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 0 10px 10px;
+  border-color: transparent transparent #808080 transparent;
+}
+
+.config-dialog {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.titlebar-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.titlebar-title .win95-icon {
+  filter: brightness(0) invert(1);
+}
+
+.titlebar-buttons {
+  display: flex;
+  gap: 2px;
+}
+
+.titlebar-button {
+  padding: 0;
+  border-image-slice: 3 4;
+  border-image-width: 3px 4px;
+  border-image-outset: 0px;
+  border-image-repeat: stretch;
+  border-style: solid;
+  border-image-source: url('../assets/win95icons/raised.png');
+  background-color: #BEBEBE;
+  width: 16px;
+  height: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.titlebar-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.titlebar-button:active {
+  border-image-source: url('../assets/win95icons/sunken.png');
+}
+
+.titlebar-button .win95-icon {
+  width: 10px;
+  height: 10px;
+}
+
+.win95-window-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.config-form {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px;
+  min-height: 0;
+}
+
+.config-field {
+  margin-bottom: 16px;
+}
+
+.config-field-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.config-label {
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.config-description {
+  font-size: 10px;
+  color: #555;
+  margin-top: 2px;
+}
+
+.config-textarea {
+  width: 100%;
+  resize: vertical;
+  font-family: monospace;
+  font-size: 11px;
+}
+
+.config-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 8px;
+  border-top: 2px solid;
+  border-top-color: #dfdfdf #808080;
+  flex-shrink: 0;
+  background-color: #c0c0c0;
+}

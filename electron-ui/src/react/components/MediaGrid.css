@@ -1,0 +1,147 @@
+.media-grid {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-image: url('../assets/win95imgs/clouds.png');
+  background-size: cover;
+  background-position: center;
+  border: 2px solid;
+  border-color: #808080 #dfdfdf #dfdfdf #808080;
+  overflow: hidden;
+}
+
+.grid-scroll-container {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.grid-header {
+  display: flex;
+  background-color: #c0c0c0;
+  border-bottom: 2px solid;
+  border-bottom-color: #808080 #dfdfdf;
+  font-size: 11px;
+  user-select: none;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  width: 100%;
+}
+
+.grid-header-cell {
+  padding: 4px 8px;
+  border-right: 1px solid #808080;
+  cursor: pointer;
+  position: relative;
+  background-color: #c0c0c0;
+  border-top: 1px solid #dfdfdf;
+  border-left: 1px solid #dfdfdf;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.grid-header-cell:hover {
+  background-color: #b0b0b0;
+}
+
+.grid-header-cell.name {
+  /* Width set inline via style */
+}
+
+.grid-header-cell.size {
+  text-align: right;
+  /* Width set inline via style */
+}
+
+.grid-header-cell.modified {
+  /* Width set inline via style */
+}
+
+.grid-body {
+  font-size: 11px;
+  width: 100%;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.grid-row {
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
+  cursor: pointer;
+  user-select: none;
+  background-color: rgba(255, 255, 255, 0.85);
+  width: 100%;
+  height: 20px;
+  line-height: 20px;
+}
+
+.grid-row:nth-child(odd) {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.grid-row:hover {
+  background-color: rgba(240, 240, 240, 0.95);
+}
+
+.grid-row.selected {
+  background-color: #000080;
+  color: #fff;
+}
+
+.grid-row.selected .win95-icon {
+  filter: brightness(0) invert(1);
+}
+
+.grid-cell {
+  padding: 2px 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+}
+
+.grid-cell.name {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  /* Width set inline via style */
+}
+
+.grid-cell-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.grid-cell.size {
+  text-align: right;
+  /* Width set inline via style */
+}
+
+.grid-cell.modified {
+  /* Width set inline via style */
+}
+
+.column-resize-handle {
+  position: absolute;
+  right: -3px;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  z-index: 1;
+}
+
+.column-resize-handle:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.media-grid {
+  user-select: none;
+}

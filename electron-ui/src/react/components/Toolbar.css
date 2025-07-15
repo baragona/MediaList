@@ -1,0 +1,28 @@
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.toolbar-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.toolbar-buttons button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  font-size: 11px;
+}
+
+.toolbar-info {
+  font-size: 11px;
+}
+
+.item-count {
+  padding: 3px 12px;
+  display: inline-block;
+}

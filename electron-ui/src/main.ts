@@ -17,12 +17,22 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
-      nodeIntegration: false
+      nodeIntegration: false,
+      webSecurity: true
     }
   });
 
+  // Open DevTools in development
+  if (process.env['USE_REACT']) {
+    mainWindow.webContents.openDevTools();
+  }
+
   // and load the index.html of the app.
-  mainWindow.loadFile("../resources/index.html");
+  if (process.env['TEST_MODE']) {
+    mainWindow.loadFile(path.join(__dirname, "../src/react/test.html"));
+  } else {
+    mainWindow.loadFile(path.join(__dirname, "../dist-react/index.html"));
+  }
 }
 
 // Set up IPC handlers

@@ -1,0 +1,31 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.app-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px;
+  background-color: #c0c0c0;
+  border-bottom: 2px solid;
+  border-bottom-color: #808080 #dfdfdf;
+}
+
+.app-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 11px;
+  color: #000;
+}

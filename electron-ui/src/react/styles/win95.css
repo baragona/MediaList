@@ -1,0 +1,93 @@
+/* Windows 95 Theme Variables */
+:root {
+  --win95-gray: #c0c0c0;
+  --win95-gray-light: #dfdfdf;
+  --win95-gray-dark: #808080;
+  --win95-black: #000000;
+  --win95-white: #ffffff;
+  --win95-blue: #000080;
+  --win95-blue-light: #1084d0;
+}
+
+/* Windows 95 3D Border Effects */
+.win95-raised {
+  padding: 2px;
+  border-image-slice: 3 4;
+  border-image-width: 3px 4px;
+  border-image-outset: 0px;
+  border-image-repeat: stretch;
+  border-style: solid;
+  border-image-source: url('../assets/win95icons/raised.png');
+  background-color: #BEBEBE;
+}
+
+.win95-sunken {
+  padding: 2px;
+  border-image-slice: 3 4;
+  border-image-width: 3px 4px;
+  border-image-outset: 0px;
+  border-image-repeat: stretch;
+  border-style: solid;
+  border-image-source: url('../assets/win95icons/sunken.png');
+  background-color: var(--win95-white);
+}
+
+.win95-border-image-raised {
+  border-image: url('../assets/win95icons/raised.png') 3 4 3 4 stretch;
+  border-width: 3px 4px;
+  border-style: solid;
+}
+
+.win95-border-image-sunken {
+  border-image: url('../assets/win95icons/sunken.png') 3 4 3 4 stretch;
+  border-width: 3px 4px;
+  border-style: solid;
+}
+
+.win95-border-image-textfield {
+  border-image: url('../assets/win95icons/textfield.png') 3 4 3 4 stretch;
+  border-width: 3px 4px;
+  border-style: solid;
+}
+
+/* Background Pattern */
+.win95-background-clouds {
+  background-image: url('../assets/win95imgs/clouds.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+/* Icons */
+.win95-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: middle;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.win95-icon-gear { background-image: url('../assets/win95icons/Icon_22-0.png'); }
+.win95-icon-scan { background-image: url('../assets/win95icons/Icon_28-0.png'); }
+.win95-icon-folder { background-image: url('../assets/win95icons/Icon_4-1.png'); }
+.win95-icon-file { background-image: url('../assets/win95icons/Icon_60-1.png'); }
+.win95-icon-app { background-image: url('../assets/win95icons/Icon_61-1.png'); }
+.win95-icon-close { background-image: url('../assets/win95icons/Xbutton.png'); }
+.win95-icon-minimize { background-image: url('../assets/win95icons/down.png'); }
+.win95-icon-maximize { background-image: url('../assets/win95icons/up.png'); }
+
+/* Video file icons - using generic file icons */
+.win95-icon-avi { background-image: url('../assets/win95icons/Icon_60-1.png'); }
+.win95-icon-mov { background-image: url('../assets/win95icons/Icon_61-1.png'); }
+.win95-icon-mpg { background-image: url('../assets/win95icons/Icon_59-1.png'); }
+.win95-icon-video { background-image: url('../assets/win95icons/Icon_60-1.png'); }
+
+/* Notification icons */
+.win95-icon-check { background-image: url('../assets/win95icons/Icon_49-0.png'); }
+.win95-icon-error { background-image: url('../assets/win95icons/Icon_63-0.png'); }
+.win95-icon-info { background-image: url('../assets/win95icons/Icon_62-0.png'); }
+
+/* Config field icons */
+.win95-icon-size { background-image: url('../assets/win95icons/Icon_69-0.png'); }
+.win95-icon-depth { background-image: url('../assets/win95icons/Icon_45-0.png'); }

@@ -2,15 +2,18 @@
   "name": "medialist",
   "version": "2.0.0",
   "description": "Cross-platform media library management application",
-  "author": "MediaList Contributors",
-  "license": "MIT",
+  "author": "GitHub",
+  "license": "CC0-1.0",
   "scripts": {
-    "build": "tsc && npm run build:frontend",
-    "build:frontend": "tsc -p tsconfig.frontend.json",
+    "build": "tsc",
     "watch": "tsc -w",
-    "watch:frontend": "tsc -w -p tsconfig.frontend.json",
     "lint": "eslint ./src",
-    "start": "npm run build && electron ./dist/main.js"
+    "start": "npm run build && npm run build:react && electron ./dist/main.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "build:react": "webpack --config webpack.prod.js",
+    "dev:react": "webpack serve --mode development"
   },
   "repository": {
     "type": "git",
@@ -24,22 +27,35 @@
     "management",
     "typescript"
   ],
-  "author": "GitHub",
-  "license": "CC0-1.0",
   "devDependencies": {
     "@eslint/js": "^9.31.0",
-    "@types/jquery": "^3.5.32",
-    "@types/jqueryui": "^1.12.24",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@types/jest": "^30.0.0",
     "@typescript-eslint/eslint-plugin": "^8.36.0",
     "@typescript-eslint/parser": "^8.36.0",
+    "css-loader": "^7.1.2",
     "electron": "^37.2.1",
     "electron-rebuild": "^3.2.9",
     "eslint": "^9.31.0",
     "globals": "^16.3.0",
-    "typescript": "^5.8.3"
+    "html-webpack-plugin": "^5.6.3",
+    "jest": "^29.7.0",
+    "style-loader": "^4.0.0",
+    "ts-jest": "^29.4.0",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.3",
+    "webpack": "^5.100.2",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.2",
+    "webpack-merge": "^6.0.1"
   },
   "dependencies": {
     "@types/better-sqlite3": "^7.6.13",
-    "better-sqlite3": "^12.2.0"
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "better-sqlite3": "^12.2.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-rnd": "^10.5.2"
   }
 }

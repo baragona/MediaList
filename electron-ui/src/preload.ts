@@ -10,7 +10,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   addFile: (filePath: string) => ipcRenderer.invoke('add-file', filePath),
   
   // Config operations
-  getConfigSchemaJSON: () => ipcRenderer.invoke('get-config-schema'),
+  getConfigSchema: () => ipcRenderer.invoke('get-config-schema'),
   saveConfig: (configJSON: string) => ipcRenderer.invoke('save-config', configJSON),
   
   // File operations

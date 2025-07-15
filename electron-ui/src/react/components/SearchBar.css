@@ -1,0 +1,23 @@
+.search-bar {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.clear-button {
+  padding: 2px;
+  min-width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clear-button:active {
+  padding: 3px 1px 1px 3px;
+}

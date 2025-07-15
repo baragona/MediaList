@@ -1,5 +1,6 @@
 # Build outputs
 dist/
+dist-react/
 *.js.map
 
 # Dependencies
@@ -20,3 +21,10 @@ npm-debug.log*
 # Environment
 .env
 .env.local
+
+# Testing
+coverage/
+
+# Database temporary files
+*.db-shm
+*.db-wal

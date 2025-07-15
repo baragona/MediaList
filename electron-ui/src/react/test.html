@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>React Test</title>
+</head>
+<body>
+  <h1>React App Test</h1>
+  <div id="test"></div>
+  <script>
+    console.log('Test HTML loaded');
+    console.log('Global:', typeof global);
+    console.log('Window:', typeof window);
+    console.log('Require:', typeof require);
+    console.log('ElectronAPI:', typeof window.electronAPI);
+    
+    document.getElementById('test').innerHTML = `
+      <p>Global: ${typeof global}</p>
+      <p>Window: ${typeof window}</p>
+      <p>Require: ${typeof require}</p>
+      <p>ElectronAPI: ${typeof window.electronAPI}</p>
+    `;
+  </script>
+</body>
+</html>

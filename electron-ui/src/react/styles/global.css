@@ -1,0 +1,173 @@
+/* Global styles and CSS reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure all elements inherit the font */
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: "Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+  font-size: 11px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-image: url('../assets/win95imgs/clouds.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  color: #000;
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+  margin: 0;
+  overflow: hidden;
+}
+
+/* Windows 95 style scrollbar */
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background: #DDD;
+}
+
+::-webkit-scrollbar-thumb {
+  padding: 2px;
+  border-image-slice: 3 4;
+  border-image-width: 3px 4px;
+  border-image-outset: 0px;
+  border-image-repeat: stretch;
+  border-style: solid;
+  border-image-source: url('../assets/win95icons/raised.png');
+  background-color: #BEBEBE;
+}
+
+/* Turn on single button up on top, and down on bottom */
+::-webkit-scrollbar-button:start:decrement,
+::-webkit-scrollbar-button:end:increment {
+  display: block;
+  padding: 2px;
+  border-image-slice: 3 4;
+  border-image-width: 3px 4px;
+  border-image-outset: 0px;
+  border-image-repeat: stretch;
+  border-style: solid;
+  border-image-source: url('../assets/win95icons/raised.png');
+  background-color: #BEBEBE;
+}
+
+::-webkit-scrollbar-button:start:decrement {
+  background-image: url('../assets/win95icons/up.png');
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+::-webkit-scrollbar-button:end:increment {
+  background-image: url('../assets/win95icons/down.png');
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+::-webkit-scrollbar-button:horizontal {
+  transform: rotate(90deg);
+  transform-origin: 50% 50%;
+}
+
+/* Turn off the down area up on top, and up area on bottom */
+::-webkit-scrollbar-button:vertical:start:increment,
+::-webkit-scrollbar-button:vertical:end:decrement {
+  display: none;
+}
+
+/* Active states */
+::-webkit-scrollbar-button:start:decrement:active,
+::-webkit-scrollbar-button:end:increment:active {
+  border-image-source: url('../assets/win95icons/sunken.png');
+  background-position: center 1px;
+}
+
+/* Windows 95 style button */
+.win95-button {
+  padding: 2px;
+  border-image-slice: 3 4;
+  border-image-width: 3px 4px;
+  border-image-outset: 0px;
+  border-image-repeat: stretch;
+  border-style: solid;
+  border-image-source: url('../assets/win95icons/raised.png');
+  background-color: #BEBEBE;
+  font-family: "Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+  font-size: 11px;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+}
+
+.win95-button:active {
+  border-image-source: url('../assets/win95icons/sunken.png');
+  background-position: 1px 1px;
+}
+
+.win95-button:focus {
+  outline: 1px dotted #000;
+  outline-offset: -4px;
+}
+
+/* Windows 95 style input */
+.win95-input {
+  padding: 2px;
+  border-image-slice: 3 4;
+  border-image-width: 3px 4px;
+  border-image-outset: 0px;
+  border-image-repeat: stretch;
+  border-style: solid;
+  border-image-source: url('../assets/win95icons/textfield.png');
+  background-color: #fff;
+  font-family: "Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+  font-size: 11px;
+  outline: none;
+}
+
+.win95-input:focus {
+  outline: 1px dotted #000;
+  outline-offset: -2px;
+}
+
+/* Windows 95 style window */
+.win95-window {
+  background-color: #c0c0c0;
+  border-top: 2px solid #dfdfdf;
+  border-left: 2px solid #dfdfdf;
+  border-right: 2px solid #808080;
+  border-bottom: 2px solid #808080;
+  box-shadow: 1px 1px 0 #000;
+}
+
+.win95-window-titlebar {
+  background: linear-gradient(to right, #000080, #1084d0);
+  color: #fff;
+  padding: 2px 3px;
+  font-family: "Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+  font-size: 11px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+
+.win95-window-content {
+  padding: 8px;
+}
