@@ -1,52 +1,109 @@
-# electron-quick-start
+# MediaList
 
-# file scanner
+A cross-platform media library manager built with Electron and TypeScript. MediaList scans your file system for media files, maintains a SQLite database of your collection, and provides a user-friendly interface for browsing and playing your media.
 
-$(npm bin)/electron ./dist/filescanner.js
+## Features
 
-# IF YOU HAVE DEPENDENCY ISSUES
+- **Automatic Media Scanning**: Recursively scans configured directories for video files
+- **SQLite Database**: Fast, lightweight storage of your media library metadata
+- **Cross-Platform**: Works on Windows, macOS, and Linux thanks to Electron
+- **Configurable**: Customize file extensions, scan depth, minimum file sizes, and video player
+- **Modern Architecture**: Built with TypeScript and Electron IPC for secure, efficient communication
+- **Drag & Drop**: Add files to your library by dragging them into the application
 
-$(npm bin)/electron-rebuild
+## Prerequisites
 
-**Clone and run for a quick way to see Electron in action.**
+- [Node.js](https://nodejs.org/) (v14 or higher)
+- [npm](https://www.npmjs.com/) (comes with Node.js)
+- [Git](https://git-scm.com/) (for cloning the repository)
 
-This is a minimal Electron application based on the [Quick Start Guide](https://electronjs.org/docs/latest/tutorial/quick-start) within the Electron documentation.
-
-**Use this app along with the [Electron API Demos](https://electronjs.org/#get-started) app for API code examples to help you get started.**
-
-A basic Electron application needs just these files:
-
-- `package.json` - Points to the app's main file and lists its details and dependencies.
-- `main.js` - Starts the app and creates a browser window to render HTML. This is the app's **main process**.
-- `index.html` - A web page to render. This is the app's **renderer process**.
-
-You can learn more about each of these components within the [Quick Start Guide](https://electronjs.org/docs/latest/tutorial/quick-start).
-
-## To Use
-
-To clone and run this repository you'll need [Git](https://git-scm.com) and [Node.js](https://nodejs.org/en/download/) (which comes with [npm](http://npmjs.com)) installed on your computer. From your command line:
+## Installation
 
 ```bash
 # Clone this repository
-git clone https://github.com/electron/electron-quick-start
-# Go into the repository
-cd electron-ui
+git clone https://github.com/baragona/MediaList.git
+
+# Navigate to the project directory
+cd MediaList/electron-ui
+
 # Install dependencies
 npm install
-# Run the app
+
+# Build the TypeScript files
+npm run build
+```
+
+## Development
+
+```bash
+# Run in development mode with auto-rebuild
+npm run watch
+
+# In another terminal, start the application
+npm start
+
+# Run the linter
+npm run lint
+```
+
+## Usage
+
+### Running the Application
+
+```bash
+# Build and start the application
 npm start
 ```
 
-Note: If you're using Linux Bash for Windows, [see this guide](https://www.howtogeek.com/261575/how-to-run-graphical-linux-desktop-applications-from-windows-10s-bash-shell/) or use `node` from the command prompt.
+### Running the File Scanner Separately
 
-## Resources for Learning Electron
+You can run the file scanner as a standalone utility:
 
-- [electronjs.org/docs](https://electronjs.org/docs) - all of Electron's documentation
-- [electronjs.org/community#boilerplates](https://electronjs.org/community#boilerplates) - sample starter apps created by the community
-- [electron/electron-quick-start](https://github.com/electron/electron-quick-start) - a very basic starter Electron app
-- [electron/simple-samples](https://github.com/electron/simple-samples) - small applications with ideas for taking them further
-- [electron/electron-api-demos](https://github.com/electron/electron-api-demos) - an Electron app that teaches you how to use Electron
-- [hokein/electron-sample-apps](https://github.com/hokein/electron-sample-apps) - small demo apps for the various Electron APIs
+```bash
+$(npm bin)/electron ./dist/filescanner.js
+```
+
+### Configuration
+
+The application stores its configuration in `python_server/medialist_config.json`. Key settings include:
+
+- `LibraryRoots`: Array of directories to scan for media files
+- `openVideosWith`: Path to your preferred video player application
+- `VideoFileExtensions`: List of file extensions to include in scans
+- `MaxSearchDepth`: How many subdirectory levels to scan
+- `MinMovieSize`: Minimum file size (in bytes) to include in the library
+
+### Troubleshooting
+
+If you encounter dependency issues, especially with native modules:
+
+```bash
+$(npm bin)/electron-rebuild
+```
+
+## Architecture
+
+MediaList uses a modern Electron architecture:
+
+- **Main Process** (`src/main.ts`): Manages the application lifecycle and window creation
+- **Renderer Process**: The UI running in the Electron window
+- **IPC Communication**: Secure communication between main and renderer processes
+- **SQLite Database**: Stores media file metadata with full-text search capabilities
+- **File Scanner** (`src/filescanner.ts`): Efficiently scans directories for media files
+- **Configuration System** (`src/ConfigLoader.ts`): JSON-based settings management
+
+## Project History
+
+MediaList started in 2013 as a macOS-native application. In 2021, it was completely rewritten using Electron for cross-platform support. The latest 2025 updates modernized the codebase with:
+
+- Full TypeScript migration
+- Electron IPC architecture (replacing the embedded HTTP server)
+- Improved type safety and code quality
+- AI-assisted development support
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
