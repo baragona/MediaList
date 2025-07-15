@@ -2,6 +2,8 @@ import fs from "fs";
 import path from "path";
 import { getConfig } from "./ConfigLoader";
 import { connect } from "./dbaccess";
+import { logger } from "./logger";
+import { DatabaseError } from "./errors";
 
 const config = getConfig();
 const library_root = config["LibraryRoots"][0];
@@ -10,23 +12,35 @@ const movie_minsize = config["MinMovieSize"];
 const max_search_depth = config["MaxSearchDepth"];
 
 function dropLibrary() {
-  const con = connect();
-  con.prepare("Drop table if exists library").run();
+  try {
+    const con = connect();
+    con.prepare("Drop table if exists library").run();
+    logger.info("Dropped library table", "FileScan");
+  } catch (error) {
+    logger.error("Failed to drop library table", "FileScan", error as Error);
+    throw new DatabaseError("Failed to drop library table", error as Error);
+  }
 }
 
 function createLibrary() {
-  const con = connect();
+  try {
+    const con = connect();
 
-  con
-    .prepare(
-      "CREATE TABLE IF NOT EXISTS library (id INTEGER PRIMARY KEY,  path TEXT , basename, size integer, modified integer, added integer,fff text)"
-    )
-    .run();
-  con.prepare(" create unique index path on library (path)").run();
-  con.prepare(" create index fff on library (fff)").run();
-  con.prepare(" create index size on library (size)").run();
-  con.prepare(" create index modified on library (modified)").run();
-  con.prepare(" create index added on library (added)").run();
+    con
+      .prepare(
+        "CREATE TABLE IF NOT EXISTS library (id INTEGER PRIMARY KEY,  path TEXT , basename, size integer, modified integer, added integer,fff text)"
+      )
+      .run();
+    con.prepare(" create unique index if not exists path on library (path)").run();
+    con.prepare(" create index if not exists fff on library (fff)").run();
+    con.prepare(" create index if not exists size on library (size)").run();
+    con.prepare(" create index if not exists modified on library (modified)").run();
+    con.prepare(" create index if not exists added on library (added)").run();
+    logger.info("Created library table and indexes", "FileScan");
+  } catch (error) {
+    logger.error("Failed to create library table", "FileScan", error as Error);
+    throw new DatabaseError("Failed to create library table", error as Error);
+  }
 }
 
 
@@ -40,31 +54,37 @@ export function resetScanProgress() {
   scanProgress = { found: 0, currentFile: '' };
 }
 
-function foundMediaFile(path: string) {
-  const con = connect();
+function foundMediaFile(filePath: string) {
+  try {
+    const con = connect();
 
-  const realpath = fs.realpathSync(path);
-  const basename = path.split("/").pop();
-  const size = fs.statSync(path).size;
-  const modified = fs.statSync(path).mtime.getTime();
-  const added = Date.now();
-  const fff = "pending";
-  
-  // Check if file already exists
-  const existing = con.prepare("SELECT id FROM library WHERE path = ?").get(realpath) as { id: number } | undefined;
-  
-  if (!existing) {
-    con
-      .prepare(
-        "insert into library (path,basename,size,modified,added,fff) values (?,?,?,?,?,?)"
-      )
-      .run(realpath, basename, size, modified, added, fff);
-    console.log("inserted");
-    scanProgress.found++;
-  } else {
-    console.log("already exists:", realpath);
+    const realpath = fs.realpathSync(filePath);
+    const basename = path.basename(filePath);
+    const stats = fs.statSync(filePath);
+    const size = stats.size;
+    const modified = stats.mtime.getTime();
+    const added = Date.now();
+    const fff = "pending";
+    
+    // Check if file already exists
+    const existing = con.prepare("SELECT id FROM library WHERE path = ?").get(realpath) as { id: number } | undefined;
+    
+    if (!existing) {
+      con
+        .prepare(
+          "insert into library (path,basename,size,modified,added,fff) values (?,?,?,?,?,?)"
+        )
+        .run(realpath, basename, size, modified, added, fff);
+      logger.debug(`Added file to library: ${basename}`, "FileScan");
+      scanProgress.found++;
+    } else {
+      logger.debug(`File already in library: ${basename}`, "FileScan");
+    }
+    scanProgress.currentFile = filePath;
+  } catch (error) {
+    logger.error(`Failed to add media file: ${filePath}`, "FileScan", error as Error);
+    // Don't throw - continue scanning other files
   }
-  scanProgress.currentFile = path;
 }
 
 function isTooBoring(counts: [number, number]) {
@@ -78,24 +98,29 @@ export function listdir(root: string, depth: number, parentCounts: [number, numb
   let nInteresting = 0;
   let nBoring = 0;
   let subdirs: string[] = [];
-  var babies: string[];
+  let babies: string[];
   try {
     babies = fs.readdirSync(root);
-  } catch {
-    console.log("couldn't list contents for " + root);
+  } catch (error) {
+    logger.error(`Failed to read directory: ${root}`, "FileScan", error as Error);
     return;
   }
   for (const files of babies) {
     const thispath = path.join(root, files);
-    const fileExtension = thispath.split(".").pop();
-    const fileName = thispath.split("/").pop();
+    const fileExtension = thispath.split(".").pop() || "";
+    const fileName = thispath.split("/").pop() || "";
     if (fileName.startsWith(".")) {
       nBoring += 1;
       continue;
     }
-    if (fs.lstatSync(thispath).isSymbolicLink()) {
-      console.log("Symbolic link!");
-      nBoring += 1;
+    try {
+      if (fs.lstatSync(thispath).isSymbolicLink()) {
+        logger.debug(`Skipping symbolic link: ${thispath}`, "FileScan");
+        nBoring += 1;
+        continue;
+      }
+    } catch (error) {
+      logger.error(`Failed to stat file: ${thispath}`, "FileScan", error as Error);
       continue;
     }
     if (fs.lstatSync(thispath).isDirectory()) {
@@ -107,13 +132,13 @@ export function listdir(root: string, depth: number, parentCounts: [number, numb
         nBoring += 1;
         continue;
       }
-      if (movie_filetypes.includes(fileExtension)) {
-        console.log(thispath);
+      if (fileExtension && movie_filetypes.includes(fileExtension)) {
+        logger.info(`Found media file: ${thispath}`, "FileScan");
         nInteresting += 1;
         foundMediaFile(thispath);
       }
     } else {
-      console.log("some kind of weird file " + thispath);
+      logger.warn(`Unknown file type: ${thispath}`, "FileScan");
     }
   }
   // now look at all the subdirs
@@ -127,8 +152,7 @@ export function listdir(root: string, depth: number, parentCounts: [number, numb
     if (depth + 1 <= max_search_depth) {
       listdir(dir, depth + 1, [nInteresting, nBoring]);
     } else {
-      console.log(dir);
-      console.log("MAXDEPTH not going any deeper");
+      logger.debug(`Max depth reached at: ${dir}`, "FileScan");
     }
   }
 }
@@ -137,5 +161,9 @@ if (require.main === module) {
   dropLibrary();
   createLibrary();
 
-  listdir(library_root, 1, [0, 0]);
+  if (library_root) {
+    listdir(library_root, 1, [0, 0]);
+  } else {
+    console.error("No library root configured");
+  }
 }

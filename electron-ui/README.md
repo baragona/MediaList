@@ -65,7 +65,7 @@ $(npm bin)/electron ./dist/filescanner.js
 
 ### Configuration
 
-The application stores its configuration in `python_server/medialist_config.json`. Key settings include:
+The application stores its configuration in `data/medialist_config.json`. Key settings include:
 
 - `LibraryRoots`: Array of directories to scan for media files
 - `openVideosWith`: Path to your preferred video player application

@@ -122,7 +122,7 @@ function keyNameToNiceName(key: string) {
 export function getConfig() {
   const cfg = Object.assign({}, defaults);
   try {
-    const file = fs.readFileSync("python_server/medialist_config.json", "utf8");
+    const file = fs.readFileSync("data/medialist_config.json", "utf8");
 
     const loaded_cfg = JSON.parse(file) as ConfigType;
     Object.assign(cfg, loaded_cfg);
@@ -135,7 +135,7 @@ export function getConfig() {
 
 export function saveConfig(cfg: ConfigType) {
   fs.writeFileSync(
-    "python_server/medialist_config.json",
+    "data/medialist_config.json",
     JSON.stringify(cfg, null, 4)
   );
 }

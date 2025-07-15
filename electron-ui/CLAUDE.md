@@ -37,7 +37,7 @@ This is an Electron-based media library application using IPC (Inter-Process Com
 
 **Database Layer (src/dbaccess.ts)**
 - SQLite database interface using better-sqlite3
-- Database file located at `python_server/medialist.db`
+- Database file located at `data/medialist.db`
 - Provides connection and utility functions
 
 **File Scanner (src/filescanner.ts)**
@@ -47,7 +47,7 @@ This is an Electron-based media library application using IPC (Inter-Process Com
 - Can be run standalone with `$(npm bin)/electron ./dist/filescanner.js`
 
 **Configuration System (src/ConfigLoader.ts)**
-- JSON-based configuration stored in `python_server/medialist_config.json`
+- JSON-based configuration stored in `data/medialist_config.json`
 - Schema-driven config with defaults for video player, file extensions, search parameters
 - Provides both loading and saving functionality
 
@@ -86,5 +86,5 @@ MediaList started in 2013 as a macOS-native application. In 2021, it was complet
 - TypeScript source in `src/`
 - Compiled JavaScript output in `dist/`
 - Frontend resources in `resources/` (HTML, CSS, JS, icons)
-- Database and config in `python_server/` directory
+- Database and config in `data/` directory
 - Legacy Python server remnants exist but are not used

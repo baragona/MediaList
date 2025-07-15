@@ -1,6 +1,9 @@
 {
-  "name": "electron-quick-start",
-  "version": "1.0.0",
+  "name": "medialist",
+  "version": "2.0.0",
+  "description": "Cross-platform media library management application",
+  "author": "MediaList Contributors",
+  "license": "MIT",
   "scripts": {
     "build": "tsc && npm run build:frontend",
     "build:frontend": "tsc -p tsconfig.frontend.json",
@@ -9,13 +12,16 @@
     "lint": "eslint ./src",
     "start": "npm run build && electron ./dist/main.js"
   },
-  "repository": "https://github.com/electron/electron-quick-start-typescript",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/medialist.git"
+  },
   "keywords": [
-    "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "demo",
+    "electron",
+    "media",
+    "library",
+    "video",
+    "management",
     "typescript"
   ],
   "author": "GitHub",

@@ -5,6 +5,8 @@ import { spawn } from "child_process";
 import { connect } from "./dbaccess";
 import { getConfig, getConfigSchemaJSON, saveConfig } from "./ConfigLoader";
 import fs from "fs";
+import { logger } from "./logger";
+import { DatabaseError, FileSystemError, NotFoundError, handleError } from "./errors";
 
 function createWindow() {
   // Create the browser window.
@@ -27,62 +29,87 @@ function createWindow() {
 function setupIpcHandlers() {
   // Database operations
   ipcMain.handle('get-library', async () => {
-    const con = connect();
-    const rows = con.prepare("select * from library").all();
-    return rows;
+    try {
+      const con = connect();
+      const rows = con.prepare("select * from library").all();
+      logger.info(`Retrieved ${rows.length} items from library`, "Database");
+      return rows;
+    } catch (error) {
+      logger.error("Failed to get library", "Database", error as Error);
+      const handled = handleError(error, "get-library");
+      throw new DatabaseError(handled.message);
+    }
   });
 
-  ipcMain.handle('open-file', async (event, fileId: number) => {
-    const con = connect();
-    const result = con
-      .prepare("select path from library where id = ?")
-      .get(fileId) as { path: string } | undefined;
-    
-    if (!result) {
-      throw new Error('File not found');
+  ipcMain.handle('open-file', async (_event, fileId: number) => {
+    try {
+      const con = connect();
+      const result = con
+        .prepare("select path from library where id = ?")
+        .get(fileId) as { path: string } | undefined;
+      
+      if (!result) {
+        throw new NotFoundError(`File with id ${fileId}`);
+      }
+      
+      const filePath = result.path;
+      
+      // Check if file exists
+      if (!fs.existsSync(filePath)) {
+        throw new FileSystemError("File no longer exists", filePath);
+      }
+      
+      logger.info(`Opening file: ${filePath}`, "FileOpen");
+      spawn("open", ["-a", getConfig().openVideosWith, filePath]);
+      return { success: true };
+    } catch (error) {
+      logger.error("Failed to open file", "FileOpen", error as Error);
+      const handled = handleError(error, "open-file");
+      return { success: false, error: handled.message };
     }
-    
-    const path = result.path;
-    spawn("open", ["-a", getConfig().openVideosWith, path]);
-    return { success: true };
   });
 
   ipcMain.handle('scan-files', async () => {
     try {
-      const { listdir, resetScanProgress, getScanProgress } = require('./filescanner');
-      const config = getConfig();
+      const { FileScanner } = require('./async-filescanner');
+      const scanner = new FileScanner();
       
-      resetScanProgress();
+      // Set up progress reporting
+      scanner.on('progress', (progress: import('./async-filescanner').ScanProgress) => {
+        // In a real app, you'd send this to the renderer process
+        logger.debug(`Scan progress: ${progress.processedFiles} files processed, ${progress.foundFiles} found`, 'FileScan');
+      });
       
-      // Start scanning in background
-      setTimeout(() => {
-        for (const root of config.LibraryRoots) {
-          if (fs.existsSync(root)) {
-            listdir(root, 1, [0, 0]);
-          }
-        }
-      }, 100);
+      scanner.on('fileAdded', (file: { path: string; basename: string }) => {
+        logger.info(`Added to library: ${file.basename}`, 'FileScan');
+      });
       
-      // Wait a bit for scan to complete (this is simplified - in production you'd want progress events)
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      const progress = await scanner.scanLibraryRoots();
       
-      const progress = getScanProgress();
       return { 
         success: true, 
-        message: `Scan complete. Found ${progress.found} new files.`,
-        filesFound: progress.found 
+        message: `Scan complete. Found ${progress.foundFiles} new files.`,
+        filesFound: progress.foundFiles,
+        totalProcessed: progress.processedFiles,
+        errors: progress.errors
       };
     } catch (error) {
-      console.error('Scan error:', error);
+      logger.error('Scan error', 'FileScan', error as Error);
+      const handled = handleError(error, 'scan-files');
       return { 
         success: false, 
-        error: error instanceof Error ? error.message : 'Scan failed' 
+        error: handled.message 
       };
     }
   });
 
-  ipcMain.handle('add-file', async (event, filePath: string) => {
+  ipcMain.handle('add-file', async (_event, filePath: string) => {
     try {
+      // Validate file exists
+      if (!fs.existsSync(filePath)) {
+        throw new FileSystemError('File does not exist', filePath);
+      }
+      
       const con = connect();
       const stats = fs.statSync(filePath);
       const basename = path.basename(filePath);
@@ -91,6 +118,7 @@ function setupIpcHandlers() {
       // Check if already exists
       const existing = con.prepare("SELECT id FROM library WHERE path = ?").get(realpath);
       if (existing) {
+        logger.warn(`File already in library: ${realpath}`, 'AddFile');
         return { success: false, error: 'File already in library' };
       }
       
@@ -106,12 +134,14 @@ function setupIpcHandlers() {
         "pending"
       );
       
+      logger.info(`Added file to library: ${realpath}`, 'AddFile');
       return { success: true };
     } catch (error) {
-      console.error('Error adding file:', error);
+      logger.error('Error adding file', 'AddFile', error as Error);
+      const handled = handleError(error, 'add-file');
       return { 
         success: false, 
-        error: error instanceof Error ? error.message : 'Failed to add file' 
+        error: handled.message
       };
     }
   });
@@ -121,14 +151,14 @@ function setupIpcHandlers() {
     return getConfigSchemaJSON();
   });
 
-  ipcMain.handle('save-config', async (event, configJSON: string) => {
+  ipcMain.handle('save-config', async (_event, configJSON: string) => {
     const config = JSON.parse(configJSON);
     saveConfig(config);
     return "saved";
   });
 
   // File browser operations
-  ipcMain.handle('get-files-in-path', async (event, dirPath: string) => {
+  ipcMain.handle('get-files-in-path', async (_event, dirPath: string) => {
     try {
       const files = fs.readdirSync(dirPath);
       const results = [];
@@ -156,7 +186,7 @@ function setupIpcHandlers() {
         return a.name.localeCompare(b.name);
       });
     } catch (error) {
-      console.error('Error reading directory:', error);
+      logger.error('Error reading directory', 'FileBrowser', error as Error);
       return [];
     }
   });
