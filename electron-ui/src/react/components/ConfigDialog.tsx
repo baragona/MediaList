@@ -69,6 +69,8 @@ export function ConfigDialog({ onClose, onSave }: ConfigDialogProps) {
       
       await saveConfig(JSON.stringify(cleanedConfig));
       onSave();
+    } catch (error) {
+      console.error('Failed to save config:', error);
     } finally {
       setSaving(false);
     }

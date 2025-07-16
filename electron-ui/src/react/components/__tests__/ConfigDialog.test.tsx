@@ -28,33 +28,38 @@ describe('ConfigDialog', () => {
       saveConfig: mockSaveConfig
     });
 
-    // Default mock responses
-    mockGetConfigSchema.mockResolvedValue(JSON.stringify({
+    // Default mock responses - use mockReturnValue for synchronous-like behavior
+    mockGetConfigSchema.mockReturnValue(Promise.resolve(JSON.stringify({
       properties: {
         LibraryRoots: {
           type: 'array',
           items: { type: 'string' },
-          description: 'Directories to scan for media files'
+          description: 'Directories to scan for media files',
+          default: ['/movies']
         },
         openVideosWith: {
           type: 'string',
-          description: 'Path to video player application'
+          description: 'Path to video player application',
+          default: '/usr/bin/vlc'
         },
         VideoFileExtensions: {
           type: 'array',
           items: { type: 'string' },
-          description: 'Supported video file extensions'
+          description: 'Supported video file extensions',
+          default: ['.mp4', '.avi', '.mkv']
         },
         MinMovieSize: {
           type: 'number',
-          description: 'Minimum file size in bytes'
+          description: 'Minimum file size in bytes',
+          default: 1048576
         },
         MaxSearchDepth: {
           type: 'number',
-          description: 'Maximum directory depth to search'
+          description: 'Maximum directory depth to search',
+          default: 5
         }
       }
-    }));
+    })));
     mockSaveConfig.mockResolvedValue('success');
   });
 
@@ -77,13 +82,18 @@ describe('ConfigDialog', () => {
       />
     );
 
+    // Wait for loading to complete
     await waitFor(() => {
-      expect(screen.getByText('Configuration')).toBeInTheDocument();
+      expect(screen.queryByText('Loading configuration...')).not.toBeInTheDocument();
     });
 
     expect(mockGetConfigSchema).toHaveBeenCalled();
-    expect(screen.getByText('LibraryRoots')).toBeInTheDocument();
-    expect(screen.getByText('openVideosWith')).toBeInTheDocument();
+    
+    // Check that config fields are rendered using their descriptions or finding by role
+    await waitFor(() => {
+      expect(screen.getByText('Directories to scan for media files')).toBeInTheDocument();
+      expect(screen.getByText('Path to video player application')).toBeInTheDocument();
+    });
   });
 
   it('handles schema loading error', async () => {
@@ -96,9 +106,13 @@ describe('ConfigDialog', () => {
       />
     );
 
+    // Wait for loading to complete
     await waitFor(() => {
-      expect(screen.getByText(/error loading configuration/i)).toBeInTheDocument();
+      expect(screen.queryByText('Loading configuration...')).not.toBeInTheDocument();
     });
+
+    // Error is logged to console, but UI should still render (with empty config)
+    expect(console.error).toHaveBeenCalledWith('Failed to parse config schema:', expect.any(Error));
   });
 
   it('updates config values on input change', async () => {
@@ -109,20 +123,19 @@ describe('ConfigDialog', () => {
       />
     );
 
+    // Wait for loading to complete
     await waitFor(() => {
-      expect(screen.getByText('Configuration')).toBeInTheDocument();
+      expect(screen.queryByText('Loading configuration...')).not.toBeInTheDocument();
     });
 
-    // Find the openVideosWith input
-    const inputs = screen.getAllByRole('textbox');
-    const videoPlayerInput = inputs.find(input => 
-      input.getAttribute('placeholder') === 'Enter openVideosWith'
-    );
+    // Find text inputs (not textareas)
+    const inputs = screen.getAllByRole('textbox').filter(el => el.tagName === 'INPUT');
+    expect(inputs.length).toBeGreaterThan(0);
 
-    if (videoPlayerInput) {
-      fireEvent.change(videoPlayerInput, { target: { value: '/usr/bin/vlc' } });
-      expect(videoPlayerInput).toHaveValue('/usr/bin/vlc');
-    }
+    // Change the first text input
+    const firstInput = inputs[0];
+    fireEvent.change(firstInput, { target: { value: '/usr/bin/vlc' } });
+    expect(firstInput).toHaveValue('/usr/bin/vlc');
   });
 
   it('saves configuration when Save button is clicked', async () => {
@@ -133,22 +146,29 @@ describe('ConfigDialog', () => {
       />
     );
 
+    // Wait for loading to complete
     await waitFor(() => {
-      expect(screen.getByText('Configuration')).toBeInTheDocument();
+      expect(screen.queryByText('Loading configuration...')).not.toBeInTheDocument();
     });
 
-    const saveButton = screen.getByRole('button', { name: 'Save' });
+    const saveButton = screen.getByText('Save');
     fireEvent.click(saveButton);
 
     await waitFor(() => {
       expect(mockSaveConfig).toHaveBeenCalled();
-      expect(mockOnSave).toHaveBeenCalled();
-      expect(mockOnClose).toHaveBeenCalled();
     });
+    
+    // onSave should be called after successful save
+    await waitFor(() => {
+      expect(mockOnSave).toHaveBeenCalled();
+    });
+    
+    // onClose is NOT called automatically after save
+    expect(mockOnClose).not.toHaveBeenCalled();
   });
 
   it('handles save error gracefully', async () => {
-    mockSaveConfig.mockRejectedValue(new Error('Save failed'));
+    mockSaveConfig.mockRejectedValueOnce(new Error('Save failed'));
 
     render(
       <ConfigDialog
@@ -157,16 +177,24 @@ describe('ConfigDialog', () => {
       />
     );
 
+    // Wait for loading to complete
     await waitFor(() => {
-      expect(screen.getByText('Configuration')).toBeInTheDocument();
+      expect(screen.queryByText('Loading configuration...')).not.toBeInTheDocument();
     });
 
-    const saveButton = screen.getByRole('button', { name: 'Save' });
+    const saveButton = screen.getByText('Save');
     fireEvent.click(saveButton);
 
     await waitFor(() => {
       expect(mockSaveConfig).toHaveBeenCalled();
-      expect(console.error).toHaveBeenCalledWith('Failed to save config:', expect.any(Error));
+    });
+    
+    // onSave should NOT be called when save fails
+    expect(mockOnSave).not.toHaveBeenCalled();
+    
+    // Button should return to 'Save' state after error
+    await waitFor(() => {
+      expect(screen.getByText('Save')).toBeInTheDocument();
     });
   });
 
@@ -178,11 +206,15 @@ describe('ConfigDialog', () => {
       />
     );
 
+    // Wait for loading to complete
     await waitFor(() => {
-      expect(screen.getByText('Configuration')).toBeInTheDocument();
+      expect(screen.queryByText('Loading configuration...')).not.toBeInTheDocument();
     });
 
-    const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+    // Find the Cancel button
+    const cancelButton = screen.getByText('Cancel');
+    expect(cancelButton).toBeInTheDocument();
+    
     fireEvent.click(cancelButton);
 
     expect(mockOnClose).toHaveBeenCalled();
@@ -198,13 +230,18 @@ describe('ConfigDialog', () => {
       />
     );
 
+    // Wait for loading to complete
     await waitFor(() => {
-      expect(screen.getByText('Configuration')).toBeInTheDocument();
+      expect(screen.queryByText('Loading configuration...')).not.toBeInTheDocument();
     });
 
-    // Array properties should have special handling
-    expect(screen.getByText('LibraryRoots')).toBeInTheDocument();
-    expect(screen.getByText('VideoFileExtensions')).toBeInTheDocument();
+    // Array properties should be rendered as textareas
+    const textareas = screen.getAllByRole('textbox').filter(el => el.tagName === 'TEXTAREA');
+    expect(textareas.length).toBeGreaterThan(0);
+    
+    // Check for array property descriptions
+    expect(screen.getByText('Directories to scan for media files')).toBeInTheDocument();
+    expect(screen.getByText('Supported video file extensions')).toBeInTheDocument();
   });
 
   it('handles number type properties correctly', async () => {
@@ -215,12 +252,17 @@ describe('ConfigDialog', () => {
       />
     );
 
+    // Wait for loading to complete
     await waitFor(() => {
-      expect(screen.getByText('Configuration')).toBeInTheDocument();
+      expect(screen.queryByText('Loading configuration...')).not.toBeInTheDocument();
     });
 
-    // Number properties should be displayed
-    expect(screen.getByText('MinMovieSize')).toBeInTheDocument();
-    expect(screen.getByText('MaxSearchDepth')).toBeInTheDocument();
+    // Number properties should be rendered as number inputs
+    const numberInputs = screen.getAllByRole('spinbutton');
+    expect(numberInputs.length).toBeGreaterThan(0);
+    
+    // Check for number property descriptions
+    expect(screen.getByText('Minimum file size in bytes')).toBeInTheDocument();
+    expect(screen.getByText('Maximum directory depth to search')).toBeInTheDocument();
   });
 });

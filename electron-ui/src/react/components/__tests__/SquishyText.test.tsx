@@ -84,10 +84,14 @@ describe('SquishyText', () => {
   });
 
   it('handles empty text', () => {
-    render(<SquishyText text="" />);
-    // Should render without crashing
-    const container = document.querySelector('.squishy-text-container');
-    expect(container).toBeInTheDocument();
+    const { container } = render(<SquishyText text="" />);
+    // Should render without crashing, even with empty text
+    const divs = container.querySelectorAll('div');
+    expect(divs.length).toBeGreaterThan(0);
+    // The span should be empty but present
+    const span = container.querySelector('span');
+    expect(span).toBeInTheDocument();
+    expect(span).toHaveTextContent('');
   });
 
   it('handles very long text', () => {

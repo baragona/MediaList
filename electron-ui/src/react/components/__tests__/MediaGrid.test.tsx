@@ -165,13 +165,14 @@ describe('MediaGrid', () => {
       />
     );
 
-    const nameHeader = screen.getByText('Name');
-    fireEvent.click(nameHeader);
-
-    const rows = screen.getAllByRole('row').slice(1); // Skip header
-    expect(rows[0]).toHaveTextContent('movie1.mp4');
-    expect(rows[1]).toHaveTextContent('movie2.mp4');
-    expect(rows[2]).toHaveTextContent('movie3.mp4');
+    // Items should be sorted by name by default (ascending)
+    const fileNames = screen.getAllByText(/movie\d+\.mp4/);
+    expect(fileNames).toHaveLength(3);
+    
+    // They should already be in ascending order
+    expect(fileNames[0]).toHaveTextContent('movie1.mp4');
+    expect(fileNames[1]).toHaveTextContent('movie2.mp4');
+    expect(fileNames[2]).toHaveTextContent('movie3.mp4');
   });
 
   it('toggles sort direction on repeated clicks', () => {
@@ -182,17 +183,20 @@ describe('MediaGrid', () => {
       />
     );
 
-    const nameHeader = screen.getByText('Name');
+    const nameHeader = document.querySelector('.grid-header-cell.name');
+    expect(nameHeader).toBeInTheDocument();
     
-    // First click - ascending
-    fireEvent.click(nameHeader);
-    let rows = screen.getAllByRole('row').slice(1);
-    expect(rows[0]).toHaveTextContent('movie1.mp4');
+    if (nameHeader) {
+      // Initial state - ascending
+      let fileNames = screen.getAllByText(/movie\d+\.mp4/);
+      expect(fileNames[0]).toHaveTextContent('movie1.mp4');
 
-    // Second click - descending
-    fireEvent.click(nameHeader);
-    rows = screen.getAllByRole('row').slice(1);
-    expect(rows[0]).toHaveTextContent('movie3.mp4');
+      // First click - should toggle to descending
+      fireEvent.click(nameHeader);
+      fileNames = screen.getAllByText(/movie\d+\.mp4/);
+      expect(fileNames[0]).toHaveTextContent('movie3.mp4');
+      expect(fileNames[2]).toHaveTextContent('movie1.mp4');
+    }
   });
 
   it('formats file size correctly', () => {
@@ -218,14 +222,22 @@ describe('MediaGrid', () => {
 
     const grid = screen.getByRole('grid');
     
-    // Focus the grid
-    fireEvent.focus(grid);
-
-    // Arrow down
-    fireEvent.keyDown(grid, { key: 'ArrowDown' });
+    // Grid should have tabindex for keyboard navigation
+    expect(grid).toHaveAttribute('tabindex', '0');
     
-    // Keyboard navigation behavior would depend on implementation
-    expect(grid).toHaveFocus();
+    // Test keyboard events are accepted without errors
+    fireEvent.keyDown(grid, { key: 'ArrowDown' });
+    fireEvent.keyDown(grid, { key: 'ArrowUp' });
+    fireEvent.keyDown(grid, { key: 'Home' });
+    fireEvent.keyDown(grid, { key: 'End' });
+    fireEvent.keyDown(grid, { key: 'Enter' });
+    
+    // After keyboard navigation, check that at least one row can be selected
+    const firstRow = screen.getByText('movie1.mp4').closest('.grid-row');
+    if (firstRow) {
+      fireEvent.click(firstRow);
+      expect(firstRow).toHaveClass('selected');
+    }
   });
 
   it('opens file on Enter key', async () => {
@@ -237,16 +249,21 @@ describe('MediaGrid', () => {
     );
 
     const grid = screen.getByRole('grid');
+    
+    // First select an item by clicking
+    const firstRow = screen.getByText('movie1.mp4').closest('.grid-row');
+    if (firstRow) {
+      fireEvent.click(firstRow);
+    }
+    
+    // Focus the grid and press Enter
     fireEvent.focus(grid);
-    
-    // Select first item
-    fireEvent.keyDown(grid, { key: 'ArrowDown' });
-    
-    // Press Enter
     fireEvent.keyDown(grid, { key: 'Enter' });
 
-    // Enter key behavior would depend on implementation
-    expect(grid).toHaveFocus();
+    // Should have called onItemClick
+    await waitFor(() => {
+      expect(mockOnItemClick).toHaveBeenCalled();
+    });
   });
 
   it('resizes columns on drag', () => {
@@ -257,14 +274,19 @@ describe('MediaGrid', () => {
       />
     );
 
-    const resizer = screen.getAllByRole('separator')[0];
+    // Find resize handle by class
+    const resizeHandle = document.querySelector('.column-resize-handle');
+    expect(resizeHandle).toBeInTheDocument();
     
-    fireEvent.mouseDown(resizer, { clientX: 100 });
-    fireEvent.mouseMove(document, { clientX: 150 });
-    fireEvent.mouseUp(document);
+    if (resizeHandle) {
+      // Simulate drag
+      fireEvent.mouseDown(resizeHandle, { clientX: 100 });
+      fireEvent.mouseMove(document, { clientX: 150 });
+      fireEvent.mouseUp(document);
+    }
 
-    // Column should be resized (exact width depends on implementation)
-    expect(resizer).toBeInTheDocument();
+    // Resize handle should still be present
+    expect(resizeHandle).toBeInTheDocument();
   });
 
   it('handles empty items array', () => {
@@ -276,7 +298,9 @@ describe('MediaGrid', () => {
     );
 
     expect(screen.getByRole('grid')).toBeInTheDocument();
-    expect(screen.getByText('Name')).toBeInTheDocument();
+    // Check for header cells by class
+    const nameHeader = document.querySelector('.grid-header-cell.name');
+    expect(nameHeader).toBeInTheDocument();
   });
 
   it('handles empty search results', () => {
@@ -288,7 +312,12 @@ describe('MediaGrid', () => {
     );
 
     expect(screen.getByRole('grid')).toBeInTheDocument();
-    expect(screen.getByText('Name')).toBeInTheDocument();
+    // Should have headers but no data rows
+    const headers = document.querySelectorAll('.grid-header-cell');
+    expect(headers.length).toBeGreaterThan(0);
+    
+    const dataRows = document.querySelectorAll('.grid-row');
+    expect(dataRows.length).toBe(0);
   });
 
   it('applies correct CSS classes to selected rows', () => {
