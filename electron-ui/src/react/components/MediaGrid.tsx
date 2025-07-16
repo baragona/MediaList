@@ -15,6 +15,7 @@ type SortDirection = 'asc' | 'desc';
 // Memoized row component for better performance
 interface GridRowProps {
   item: LibraryItem;
+  index: number;
   isSelected: boolean;
   columnWidths: { name: number; size: number; modified: number };
   onSelect: (id: number) => void;
@@ -26,6 +27,7 @@ interface GridRowProps {
 
 const GridRow = memo<GridRowProps>(({ 
   item, 
+  index,
   isSelected, 
   columnWidths, 
   onSelect, 
@@ -36,7 +38,7 @@ const GridRow = memo<GridRowProps>(({
 }: GridRowProps) => {
   return (
     <div
-      className={`grid-row ${isSelected ? 'selected' : ''}`}
+      className={`grid-row ${isSelected ? 'selected' : ''} ${index % 2 === 0 ? 'even' : 'odd'}`}
       onClick={() => onSelect(item.id)}
       onDoubleClick={() => onDoubleClick(item)}
       role="row"
@@ -344,19 +346,23 @@ export function MediaGrid({ items, onItemClick }: MediaGridProps) {
             transform: `translateY(${visibleRange.start * GRID_CONSTANTS.ROW_HEIGHT}px)`,
             willChange: 'transform'
           }}>
-            {visibleItems.map((item, index) => (
-              <GridRow
-                key={item.id}
-                item={item}
-                isSelected={selectedId === item.id}
-                columnWidths={columnWidths}
-                onSelect={handleSelect}
-                onDoubleClick={handleDoubleClick}
-                getFileIcon={getFileIcon}
-                formatSize={formatSize}
-                formatDate={formatDate}
-              />
-            ))}
+            {visibleItems.map((item, index) => {
+              const actualIndex = visibleRange.start + index;
+              return (
+                <GridRow
+                  key={item.id}
+                  item={item}
+                  index={actualIndex}
+                  isSelected={selectedId === item.id}
+                  columnWidths={columnWidths}
+                  onSelect={handleSelect}
+                  onDoubleClick={handleDoubleClick}
+                  getFileIcon={getFileIcon}
+                  formatSize={formatSize}
+                  formatDate={formatDate}
+                />
+              );
+            })}
           </div>
         </div>
       </div>
