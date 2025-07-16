@@ -1,5 +1,6 @@
 import React, { useRef, useLayoutEffect, useState } from 'react';
 import { useSquishyText } from '../hooks/useSquishyText';
+import { SQUISHY_TEXT_CONSTANTS } from '../constants';
 
 interface SquishyTextProps {
   text: string;
@@ -10,7 +11,7 @@ interface SquishyTextProps {
 export function SquishyText({ text, className = '', title }: SquishyTextProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
-  const { style } = useSquishyText(text, containerWidth, '11px', '"Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif', 'grid-cell-text');
+  const { style } = useSquishyText(text, containerWidth, SQUISHY_TEXT_CONSTANTS.FONT_SIZE, SQUISHY_TEXT_CONSTANTS.FONT_FAMILY, 'grid-cell-text');
 
   useLayoutEffect(() => {
     const updateWidth = () => {

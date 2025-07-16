@@ -18,5 +18,15 @@
     }
   },
   "include": ["src/react/**/*"],
-  "exclude": ["node_modules", "dist", "dist-react"]
+  "exclude": [
+    "node_modules", 
+    "dist", 
+    "dist-react",
+    "src/react/**/*.test.ts",
+    "src/react/**/*.test.tsx",
+    "src/react/__tests__/**/*",
+    "src/react/**/__tests__/**/*",
+    "src/react/setupTests.ts",
+    "src/react/jest-dom.d.ts"
+  ]
 }

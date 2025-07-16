@@ -1,12 +1,9 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import './styles/global.css';
 import './styles/win95.css';
-
-console.log('React app starting...');
-console.log('Global defined:', typeof global !== 'undefined');
-console.log('Window defined:', typeof window !== 'undefined');
 
 const container = document.getElementById('root');
 if (!container) {
@@ -16,6 +13,8 @@ if (!container) {
 const root = createRoot(container);
 root.render(
   <React.StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </React.StrictMode>
 );

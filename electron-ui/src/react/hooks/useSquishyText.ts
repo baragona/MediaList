@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { SQUISHY_TEXT_CONSTANTS } from '../constants';
 
 interface SquishyStyle {
   letterSpacing?: string;
@@ -20,11 +21,7 @@ let measurementDiv: HTMLDivElement | null = null;
 const getMeasurementDiv = (): HTMLDivElement => {
   if (!measurementDiv) {
     measurementDiv = document.createElement('div');
-    measurementDiv.style.position = 'absolute';
-    measurementDiv.style.visibility = 'hidden';
-    measurementDiv.style.height = 'auto';
-    measurementDiv.style.width = 'auto';
-    measurementDiv.style.whiteSpace = 'nowrap';
+    Object.assign(measurementDiv.style, SQUISHY_TEXT_CONSTANTS.MEASUREMENT_DIV_STYLE);
     document.body.appendChild(measurementDiv);
   }
   return measurementDiv;
@@ -68,7 +65,7 @@ const measureText = (
   const width = div.offsetWidth;
   
   // Cache for performance
-  if (measurementCache.size > 500) {
+  if (measurementCache.size > SQUISHY_TEXT_CONSTANTS.CACHE_SIZE_LIMIT) {
     // Clear old entries
     const firstKey = measurementCache.keys().next().value;
     if (firstKey) measurementCache.delete(firstKey);
@@ -81,8 +78,8 @@ const measureText = (
 export const useSquishyText = (
   text: string,
   containerWidth: number,
-  fontSize: string = '11px',
-  fontFamily: string = '"Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif',
+  fontSize: string = SQUISHY_TEXT_CONSTANTS.FONT_SIZE,
+  fontFamily: string = SQUISHY_TEXT_CONSTANTS.FONT_FAMILY,
   className?: string
 ) => {
   const [style, setStyle] = useState<SquishyStyle>({});

@@ -12,6 +12,9 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:react": "jest --config jest.config.react.js",
+    "test:react:watch": "jest --config jest.config.react.js --watch",
+    "test:react:coverage": "jest --config jest.config.react.js --coverage",
     "build:react": "webpack --config webpack.prod.js",
     "dev:react": "webpack serve --mode development"
   },
@@ -30,6 +33,8 @@
   "devDependencies": {
     "@eslint/js": "^9.31.0",
     "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^30.0.0",
     "@typescript-eslint/eslint-plugin": "^8.36.0",
     "@typescript-eslint/parser": "^8.36.0",
@@ -39,7 +44,9 @@
     "eslint": "^9.31.0",
     "globals": "^16.3.0",
     "html-webpack-plugin": "^5.6.3",
+    "identity-obj-proxy": "^3.0.0",
     "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "style-loader": "^4.0.0",
     "ts-jest": "^29.4.0",
     "ts-loader": "^9.5.2",

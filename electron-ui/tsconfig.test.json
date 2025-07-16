@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.react.json",
+  "compilerOptions": {
+    "types": ["jest", "@testing-library/jest-dom", "node"],
+    "lib": ["ES2020", "DOM"],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": [
+    "src/react/**/*.test.ts",
+    "src/react/**/*.test.tsx",
+    "src/react/setupTests.ts",
+    "src/react/jest-dom.d.ts"
+  ]
+}

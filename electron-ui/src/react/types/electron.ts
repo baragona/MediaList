@@ -32,15 +32,28 @@ export interface FileInfo {
   type: 'file' | 'dir' | 'app';
 }
 
+export interface ConfigSchemaProperty {
+  description: string;
+  type: string;
+  default: string | string[] | number | boolean;
+  items?: { type: string };
+  icon?: string;
+  title?: string;
+}
+
 export interface ConfigSchema {
-  [key: string]: {
-    description: string;
-    type: string;
-    default: any;
-    items?: { type: string };
-    icon?: string;
-    title?: string;
+  properties: {
+    [key: string]: ConfigSchemaProperty;
   };
+}
+
+export interface MediaListConfig {
+  LibraryRoots: string[];
+  openVideosWith: string;
+  VideoFileExtensions: string[];
+  MinMovieSize: number;
+  MaxSearchDepth: number;
+  [key: string]: string | string[] | number | boolean;
 }
 
 export interface ElectronAPI {

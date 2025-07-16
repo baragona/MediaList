@@ -5,19 +5,19 @@ import { SearchBar } from './components/SearchBar';
 import { Toolbar } from './components/Toolbar';
 import { NotificationManager } from './components/NotificationManager';
 import { ConfigDialog } from './components/ConfigDialog';
+import { LoadingSpinner } from './components/LoadingSpinner';
 import type { LibraryItem } from './types/electron';
+import { NOTIFICATION_TIMEOUT } from './constants';
 import './styles/app.css';
 
 function App() {
   const [library, setLibrary] = useState<LibraryItem[]>([]);
   const [filteredLibrary, setFilteredLibrary] = useState<LibraryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [scanning, setScanning] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [configOpen, setConfigOpen] = useState(false);
   const [notifications, setNotifications] = useState<Array<{ id: string; message: string; type: 'success' | 'error' | 'info' }>>([]);
-  
-  console.log('App component rendering');
-  console.log('window.electronAPI:', window.electronAPI);
   
   const { getLibrary, openFile, scanFiles } = useElectronAPI();
 
@@ -59,14 +59,19 @@ function App() {
   };
 
   const handleScan = async () => {
+    setScanning(true);
     addNotification('Scanning for media files...', 'info');
-    const result = await scanFiles();
-    
-    if (result.success) {
-      addNotification(`Scan complete. Found ${result.filesFound || 0} new files.`, 'success');
-      await loadLibrary();
-    } else {
-      addNotification(result.error || 'Scan failed', 'error');
+    try {
+      const result = await scanFiles();
+      
+      if (result.success) {
+        addNotification(`Scan complete. Found ${result.filesFound || 0} new files.`, 'success');
+        await loadLibrary();
+      } else {
+        addNotification(result.error || 'Scan failed', 'error');
+      }
+    } finally {
+      setScanning(false);
     }
   };
 
@@ -77,7 +82,7 @@ function App() {
     // Auto-remove after 5 seconds
     setTimeout(() => {
       setNotifications(prev => prev.filter(n => n.id !== id));
-    }, 5000);
+    }, NOTIFICATION_TIMEOUT);
   };
 
   const handleDrop = async (e: React.DragEvent) => {
@@ -86,9 +91,10 @@ function App() {
     
     const files = Array.from(e.dataTransfer.files);
     for (const file of files) {
-      const filePath = (file as any).path;
-      if (filePath) {
-        await window.electronAPI.addFile(filePath);
+      // In Electron, File objects have a path property
+      const electronFile = file as File & { path?: string };
+      if (electronFile.path) {
+        await window.electronAPI.addFile(electronFile.path);
       }
     }
     
@@ -117,15 +123,14 @@ function App() {
       </div>
       
       <div className="app-content">
-        {loading ? (
-          <div className="loading">Loading library...</div>
-        ) : (
-          <MediaGrid 
-            items={filteredLibrary}
-            onItemClick={handleOpenFile}
-          />
-        )}
+        <MediaGrid 
+          items={filteredLibrary}
+          onItemClick={handleOpenFile}
+        />
       </div>
+      
+      {loading && <LoadingSpinner message="Loading media library..." />}
+      {scanning && <LoadingSpinner message="Scanning for media files..." />}
 
       {configOpen && (
         <ConfigDialog 
